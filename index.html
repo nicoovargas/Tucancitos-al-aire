@@ -352,6 +352,8 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   pu.forEach(function(p){p.y+=p.v*dt;});
   var vacR=[0,72,178,Math.max(W,H)*1.5][profile.vacuumLevel],vacS=[0,95,275,650][profile.vacuumLevel];
   if(profile.vacuumLevel>0){for(var u=pu.length-1;u>=0;u--){var p=pu[u];if(p.k===5&&profile.vacuumLevel<3)continue;var vx=sx-p.x,vy=H-40-p.y,vd=Math.sqrt(vx*vx+vy*vy)||1;if(vd<=vacR){var step=Math.min(vd,vacS*dt);if(vd<23||step>=vd){pu.splice(u,1);collect(p.k);spark(sx,H-40,1.1);boom(sx,H-40,PU[p.k][1],5);}else{p.x+=vx/vd*step;p.y+=vy/vd*step;}}}}
+  /* Recogida manual: la nave puede tocar cualquier power-up o tótem aunque no tenga aspiradora. */
+  for(var u=pu.length-1;u>=0;u--){var p=pu[u];if(Math.abs(p.x-sx)<27&&Math.abs(p.y-(H-40))<30){pu.splice(u,1);collect(p.k);spark(sx,H-40,1.1);boom(sx,H-40,PU[p.k][1],5);}}
   pu=pu.filter(function(p){return p.y<H+12;});
   if((K.f||ctl==='touch')&&cd<=0&&bals.length<24){var n=Math.min(6,profile.bullets+(tm.mu>0?2:0));
     for(var i=0;i<n;i++){var o=i-(n-1)/2;bals.push({x:sx+o*8,y:H-62,vx:n>2?o*55:0});}

@@ -332,8 +332,8 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   if(st==='cine'){cineT+=dt;var cb_=CB[cineK-1];if(cineT>=cb_[cb_.length-1])endCine();return;}
   if(st==='nivel'||st==='mundo'){
     if(st==='nivel'){
-      sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;
-      if(tgt!==null){var ndx=tgt-sx,nmx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
+      sx+=(K.r-K.l)*SH[profile.ship].sp*dt;
+      if(tgt!==null){var ndx=tgt-sx,nmx=SH[profile.ship].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
       sx=Math.max(20,Math.min(W-20,sx));
       /* Imán de final de nivel: trayectoria directa hacia el centro de la nave,
          con velocidad fija para que todos lleguen incluso desde la parte alta. */
@@ -360,7 +360,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   if(st!=='jugando')return;
   if(revT>0){revT-=dt;return;}
 
-  sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;if(tgt!==null){var dx=tgt-sx,mx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-mx,Math.min(mx,dx));}sx=Math.max(20,Math.min(W-20,sx));
+  sx+=(K.r-K.l)*SH[profile.ship].sp*dt;if(tgt!==null){var dx=tgt-sx,mx=SH[profile.ship].sp*2.2*dt;sx+=Math.max(-mx,Math.min(mx,dx));}sx=Math.max(20,Math.min(W-20,sx));
   cd-=dt;inv-=dt;tipT-=dt;spT-=dt;lvT-=dt;phT-=dt;
   for(var q in tm)if(q!=='mi')tm[q]=Math.max(0,tm[q]-dt);
   if(spT<=0){spT=R(8,13);drop(R(30,W-30),-10,1);}
@@ -370,9 +370,9 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   for(var u=pu.length-1;u>=0;u--){var p=pu[u];
     if(Math.abs(p.x-sx)<(p.k===5?34:24)&&p.y>H-(p.k===5?86:70)&&p.y<H-18){pu.splice(u,1);collect(p.k);}
     else if(p.y>H+12)pu.splice(u,1);}
-  if((K.f||ctl==='touch')&&cd<=0&&bals.length<24){var n=Math.min(5,SH[Math.min(wi,7)].n1+(tm.mu>0?2:0));
+  if((K.f||ctl==='touch')&&cd<=0&&bals.length<24){var n=Math.min(5,SH[profile.ship].n1+(tm.mu>0?2:0));
     for(var i=0;i<n;i++){var o=i-(n-1)/2;bals.push({x:sx+o*8,y:H-62,vx:n>2?o*55:0});}
-    cd=SH[Math.min(wi,7)].cd*(tm.ra>0?.55:1);SFX.fire();spark(sx,H-70,.7);}
+    cd=SH[profile.ship].cd*(tm.ra>0?.55:1);SFX.fire();spark(sx,H-70,.7);}
   bals.forEach(function(b){b.y-=560*dt;b.x+=(b.vx||0)*dt;});
   bals=bals.filter(function(b){return b.y>-10;});
   if(profile.missiles){tm.mi=1;miCd-=dt;if(miCd<=0&&ens.length&&mis.length<4){mis.push({x:sx,y:H-54,vx:0,vy:-230});miCd=.95;}}
@@ -405,7 +405,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       if(b.life<=0){for(var r=0;r<8;r++){var a3=r*Math.PI/4;eb.push({x:b.x,y:b.y,vx:Math.cos(a3)*bv*.55,vy:Math.sin(a3)*bv*.55});}b.y=H+99;}}
     if(Math.abs(b.x-sx)<(tm.sh>0?24:13)&&b.y>H-62&&b.y<H-24){
       if(tm.sh>0){SFX.shield();b.y=H+99;boom(b.x,H-60,'#4dd0e1',6);}
-      else if(inv<=0){SFX.hurt();vidas--;inv=1.5;b.y=H+99;boom(sx,H-40,SH[Math.min(wi,7)].col,20);}}});
+      else if(inv<=0){SFX.hurt();vidas--;inv=1.5;b.y=H+99;boom(sx,H-40,SH[profile.ship].col,20);}}});
   eb=eb.filter(function(b){return b.y<H+10&&b.y>-40&&b.x>-10&&b.x<W+10;});
   if(vidas<=0){if(tot>0){tot--;vidas=maxL();inv=3;eb=[];lz=[];boom(sx,H-40,'#c8a15a',60);spark(sx,H-60,3);playTotemSnd();revT=2.6;}else{terminar(false);return;}}
 
@@ -501,7 +501,7 @@ function shipImg(S){var z=1+.025*Math.min(wi,7),d=54*z,cy=H-38;
   g.save();g.shadowColor='rgba(20,10,5,.65)';g.shadowOffsetX=3;g.shadowOffsetY=4;g.imageSmoothingEnabled=true;g.drawImage(SI,sx-d/2,cy-d/2,d,d);g.restore();
   if(tm.sh>0){g.strokeStyle='rgba(77,208,225,'+(tm.sh<2?.4+.4*Math.sin(t*20):.8)+')';g.lineWidth=3;g.beginPath();g.arc(sx,cy,d/2+5,0,6.28);g.stroke();}
   if(tm.ra>0){g.fillStyle='#ff8a1f';g.fillRect(sx-3,cy+d/2-3,6,6+4*Math.sin(t*30));}}
-function ship(){var S=SH[Math.min(wi,7)];if(shipOk()){shipImg(S);return;}g.fillStyle=S.col;
+function ship(){var S=SH[profile.ship];if(shipOk()){shipImg(S);return;}g.fillStyle=S.col;
   if(wi>=2){g.beginPath();g.moveTo(sx-8,H-44);g.lineTo(sx-28,H-20);g.lineTo(sx-8,H-30);g.moveTo(sx+8,H-44);g.lineTo(sx+28,H-20);g.lineTo(sx+8,H-30);g.fill();}
   if(wi>=1){g.fillRect(sx-17,H-46,4,14);g.fillRect(sx+13,H-46,4,14);}
   if(wi>=3){g.shadowColor='rgba(20,10,5,.6)';g.shadowOffsetX=3;g.shadowOffsetY=4;}
@@ -593,7 +593,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     g.fillStyle='rgba(20,10,5,.6)';g.fillRect(0,0,W,48);g.textAlign='left';g.fillStyle='#f0d9a0';g.font='14px Bevan,Georgia,serif';
     lt('Mundo '+(wi+1)+' Nivel '+(li+1),10,22,14,'#f6e7b4','left');
     hearts();
-    g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');
+    g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');lt('¢ '+profile.coins,W/2,41,12,'#ffd23f','center');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');
     var nr=best>startBest;g.font='12px Bevan,Georgia,serif';g.fillStyle=nr?'#ffd23f':'#bbb';
     lt((nr?'¡Nuevo récord! ':'Récord ')+best,W-10,41,12,nr?'#ffd23f':'#d9c9a0','right');
     g.textAlign='left';g.fillStyle='#4dd0e1';var ef=[];if(tm.sh>0)ef.push('Escudo '+Math.ceil(tm.sh));if(tm.mu>0)ef.push('Balas+ '+Math.ceil(tm.mu));if(tm.ra>0)ef.push('Rápido '+Math.ceil(tm.ra));if(tm.mi>0)ef.push('Misiles ∞');
@@ -615,7 +615,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     else txt('Toca '+tapTxt()+' para empezar',462,18,'#43d17a');
     txt(ctl==='touch'?'Desliza el dedo para mover. La nave dispara sola.':'Botones: ← → mover, Disparar',510,12,'#bbb');txt('Teclado: A/D mover, espacio disparar, P menú',530,12,'#bbb');
   }
-    if(st==='mundo'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);txt('Mundo '+(wi+1),H/2-14,36,'#ffd23f');txt(wname(wi)+': '+P.a,H/2+22,20);txt(SH[Math.min(wi,7)].n+': '+SH[Math.min(wi,7)].d,H/2+54,16,SH[Math.min(wi,7)].col);txt((wi>0?'¡Nave mejorada! ':'')+'Corazones: '+maxL(),H/2+78,15,'#ffd23f');txt('Jefe: '+bname(wi),H/2+104,16,'#ff8a80');wrap(story(wi),30).forEach(function(l,i){txt(l,H/2+138+i*22,14,'#f6e7b4');});}
+    if(st==='mundo'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);txt('Mundo '+(wi+1),H/2-14,36,'#ffd23f');txt(wname(wi)+': '+P.a,H/2+22,20);txt(SH[profile.ship].n+': '+SH[profile.ship].d,H/2+54,16,SH[profile.ship].col);txt((wi>0?'¡Nave mejorada! ':'')+'Corazones: '+maxL(),H/2+78,15,'#ffd23f');txt('Jefe: '+bname(wi),H/2+104,16,'#ff8a80');wrap(story(wi),30).forEach(function(l,i){txt(l,H/2+138+i*22,14,'#f6e7b4');});}
   if(st==='pausa'){g.fillStyle='rgba(0,0,0,.55)';g.fillRect(0,0,W,H);txt('Pausa',H/2,34);}
   if(st==='nivel'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);if(li===5){g.save();g.translate(W/2,H/2-70);g.rotate(-.12);g.translate(-W/2,-(H/2-70));txt('¡K.O.!',H/2-70,72,'#ff3b30');g.restore();}
   txt(li===5?'¡Jefe derrotado!':'¡Nivel '+(li+1)+' completado!',H/2-10,26,'#ffd23f');txt('Bonus +'+((L()+1)*30),H/2+24,18);if(li===5){txt('¡Fragmento del Tótem recuperado!',H/2+52,14,'#8fe3ee');wrap(bname(wi)+': '+bline(wi),30).forEach(function(l,i){txt(l,H/2+84+i*22,14,'#f6e7b4');});}}

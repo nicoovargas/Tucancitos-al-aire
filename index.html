@@ -343,7 +343,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
           pu.splice(puI,1);collect(pp.k);spark(sx,H-40,1.4);boom(sx,H-40,PU[pp.k][1],5);
         }else{pp.x+=pdx/pdist*pstep;pp.y+=pdy/pdist*pstep;}
       }
-      for(var ci=coinFly.length-1;ci>=0;ci--){var cc=coinFly[ci],cdx=sx-cc.x,cdy=H-40-cc.y,cdist=Math.sqrt(cdx*cdx+cdy*cdy),cstep=Math.min(cdist,1500*dt);if(cdist<=24||cstep>=cdist){coinFly.splice(ci,1);spark(sx,H-40,1.8);}else{cc.x+=cdx/cdist*cstep;cc.y+=cdy/cdist*cstep;}}
+      for(var ci=coinFly.length-1;ci>=0;ci--){var cc=coinFly[ci],cdx=sx-cc.x,cdy=H-40-cc.y,cdist=Math.sqrt(cdx*cdx+cdy*cdy),cstep=Math.min(cdist,1500*dt);if(cdist<=24||cstep>=cdist){profile.coins+=cc.v;coinFly.splice(ci,1);sv();SFX.pu();spark(sx,H-40,1.8);}else{cc.x+=cdx/cdist*cstep;cc.y+=cdy/cdist*cstep;}}
     }
     msgT-=dt;
     if(msgT<=0){
@@ -419,7 +419,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       }
     }
   }
-  if(ens.length===0){gain((L()+1)*30);st='nivel';msgT=3.5;lz=[];dec=[];SFX.level();var reward=16+wi*4+(li===5?24:0);profile.coins+=reward;sv();coinFly=[{x:W/2,y:H/2-10,v:reward}];}
+  if(ens.length===0){gain((L()+1)*30);st='nivel';msgT=3.5;lz=[];dec=[];SFX.level();var reward=16+wi*4+(li===5?24:0);coinFly=[{x:W/2,y:H/2-10,v:reward}];}
 }
 
 function birdVec(e,P){
@@ -580,6 +580,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
   mis.forEach(function(m){g.save();g.translate(m.x,m.y);g.rotate(Math.atan2(m.vy,m.vx)+Math.PI/2);g.fillStyle='rgba(255,112,67,.45)';g.fillRect(-3,7,6,10);g.fillStyle='#1a0f08';g.fillRect(-4,-8,8,17);g.fillStyle='#ff7043';g.fillRect(-2,-6,4,12);g.fillStyle='#fff1d6';g.fillRect(-2,-5,4,4);g.restore();});
   g.strokeStyle='#1a0f08';g.lineWidth=2.2;eb.forEach(function(b){if(b.hm){g.fillStyle='#1a0f08';g.fillRect(b.x-11,b.y-11,22,22);g.fillStyle='#7c4dff';g.fillRect(b.x-9,b.y-9,18,18);g.fillStyle='#d1c4ff';g.fillRect(b.x-6,b.y-4,5,5);g.fillRect(b.x+1,b.y-4,5,5);g.fillStyle='#1a0f08';g.fillRect(b.x-4,b.y-3,2,3);g.fillRect(b.x+3,b.y-3,2,3);return;}g.fillStyle='#1a0f08';g.fillRect(b.x-7,b.y-7,14,14);g.fillStyle='#ff6fa5';g.fillRect(b.x-5,b.y-5,10,10);g.fillStyle='#ffd6e7';g.fillRect(b.x-3,b.y-3,4,4);});
   coinFly.forEach(function(c){g.fillStyle='#1a0f08';g.fillRect(c.x-10,c.y-10,20,20);g.fillStyle='#ffd23f';g.fillRect(c.x-8,c.y-8,16,16);g.fillStyle='#fff3a6';g.font='bold 13px monospace';g.textAlign='center';g.fillText('¢',c.x,c.y+5);});
+   coinFly.forEach(function(c){g.fillStyle='#1a0f08';g.fillRect(c.x-10,c.y-10,20,20);g.fillStyle='#ffd23f';g.fillRect(c.x-8,c.y-8,16,16);g.fillStyle='#fff3a6';g.font='bold 13px monospace';g.textAlign='center';g.fillText('¢',c.x,c.y+5);});
    pu.forEach(function(p){if(p.k===5&&goldTotem(p.x,p.y+Math.round(Math.sin(t*5)*2)*2,64,t))return;var c=PU[p.k],o=Math.round(Math.sin(t*8+p.x)*2)*2;g.fillStyle='#1a0f08';g.fillRect(p.x-12,p.y-12+o,24,24);g.fillStyle=c[1];g.fillRect(p.x-10,p.y-10+o,20,20);g.fillStyle='rgba(255,255,255,.6)';g.fillRect(p.x-10,p.y-10+o,20,4);g.fillRect(p.x-10,p.y-10+o,4,20);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(p.x-10,p.y+6+o,20,4);g.fillRect(p.x+6,p.y-10+o,4,20);g.fillStyle='#1a0f08';g.font='bold 16px monospace';g.textAlign='center';g.fillText(c[0],p.x,p.y+6+o);});
   if(st!=='inicio'&&!(inv>0&&Math.floor(t*12)%2)){
     ship();
@@ -592,7 +593,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     g.fillStyle='rgba(20,10,5,.6)';g.fillRect(0,0,W,48);g.textAlign='left';g.fillStyle='#f0d9a0';g.font='14px Bevan,Georgia,serif';
     lt('Mundo '+(wi+1)+' Nivel '+(li+1),10,22,14,'#f6e7b4','left');
     hearts();
-    g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');
+    g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');
     var nr=best>startBest;g.font='12px Bevan,Georgia,serif';g.fillStyle=nr?'#ffd23f':'#bbb';
     lt((nr?'¡Nuevo récord! ':'Récord ')+best,W-10,41,12,nr?'#ffd23f':'#d9c9a0','right');
     g.textAlign='left';g.fillStyle='#4dd0e1';var ef=[];if(tm.sh>0)ef.push('Escudo '+Math.ceil(tm.sh));if(tm.mu>0)ef.push('Balas+ '+Math.ceil(tm.mu));if(tm.ra>0)ef.push('Rápido '+Math.ceil(tm.ra));if(tm.mi>0)ef.push('Misiles ∞');

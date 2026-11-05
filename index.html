@@ -323,6 +323,16 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   parts=parts.filter(function(p){return p.l>0;});fx.forEach(function(f){f.t+=dt;});fx=fx.filter(function(f){return f.t<.3;});
   if(st==='cine'){cineT+=dt;var cb_=CB[cineK-1];if(cineT>=cb_[cb_.length-1])endCine();return;}
   if(st==='nivel'||st==='mundo'){
+    if(st==='nivel'){
+      sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;
+      if(tgt!==null){var ndx=tgt-sx,nmx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
+      sx=Math.max(20,Math.min(W-20,sx));
+      pu.forEach(function(p){p.y+=p.v*dt;});
+      for(var puI=pu.length-1;puI>=0;puI--){var pp=pu[puI];
+        if(Math.abs(pp.x-sx)<(pp.k===5?34:24)&&pp.y>H-(pp.k===5?86:70)&&pp.y<H-18){pu.splice(puI,1);collect(pp.k);}
+        else if(pp.y>H+12)pu.splice(puI,1);
+      }
+    }
     msgT-=dt;
     if(msgT<=0){
       if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(maxL()+3,Math.max(vidas+1,maxL()));}

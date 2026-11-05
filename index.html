@@ -289,7 +289,7 @@ function shopRender(){var box=document.getElementById('shop-items');box.innerHTM
  if(profile.bullets<6){var bc=[0,0,225,375,565,815,1125];item('Balas · Nivel '+(profile.bullets+1),'Aumenta a '+(profile.bullets+1)+' balas por disparo.',bc[profile.bullets+1],false,true,function(){profile.coins-=bc[profile.bullets+1];profile.bullets++;sv();});}else item('Balas · Nivel máximo','Disparas 6 balas por ráfaga.',0,true,true,function(){});
  if(profile.missiles)item('Misiles teledirigidos','Comprados. Se disparan automáticamente con cadencia limitada.',0,true,true,function(){});else item('Misiles teledirigidos','Mejora avanzada. Ahorrando las monedas de los primeros mundos podrás comprarla cerca del mundo 7.',1350,false,true,function(){profile.coins-=500;profile.missiles=true;sv();});
  if(profile.totemLevel<3){var tl=profile.totemLevel+1,tc=tl===2?500:750;item('Capacidad de tótems · Nivel '+tl,'Permite guardar '+tl+' tótems.',tc,false,true,function(){profile.coins-=tc;profile.totemLevel=tl;sv();});}else item('Capacidad de tótems máxima','Puedes guardar hasta 3 tótems.',0,true,true,function(){});
- if(profile.vacuumLevel<3){var vl=profile.vacuumLevel+1,vc=[0,315,375,750][vl],vd=['','Atrae power-ups lentamente en un radio pequeño.','Atrae power-ups en un radio mayor.','Atrae power-ups y tótems desde cualquier parte del mapa, más rápido.'][vl];item('Aspiradora · Nivel '+vl,vd,vc,false,true,function(){profile.coins-=vc;profile.vacuumLevel=vl;sv();});}else item('Aspiradora máxima','Atrae power-ups y tótems desde cualquier parte del mapa.',0,true,true,function(){});
+ if(profile.vacuumLevel<3){var vl=profile.vacuumLevel+1,vc=[0,315,375,5000][vl],vd=['','Atrae power-ups lentamente en un radio pequeño.','Atrae power-ups en un radio mayor.','Atrae power-ups y tótems desde cualquier parte del mapa durante la partida.'][vl];item('Aspiradora · Nivel '+vl,vd,vc,false,true,function(){profile.coins-=vc;profile.vacuumLevel=vl;sv();});}else item('Aspiradora máxima','Atrae power-ups y tótems desde cualquier parte del mapa.',0,true,true,function(){});
 }
 document.getElementById('mb').addEventListener('click',pausa);
 document.getElementById('home-play').addEventListener('click',function(){buildWorlds('worlds');showView('worlds');});
@@ -327,6 +327,15 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       sx+=(K.r-K.l)*SH[0].sp*dt;
       if(tgt!==null){var ndx=tgt-sx,nmx=SH[0].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
       sx=Math.max(20,Math.min(W-20,sx));
+      /* Al limpiar el nivel, cualquier aspiradora atrae los objetos restantes durante los 3.5 segundos de pausa. */
+      if(st==='nivel'&&profile.vacuumLevel>0){
+        var endVacSpeed=[0,420,540,680][profile.vacuumLevel];
+        for(var eu=pu.length-1;eu>=0;eu--){
+          var ep=pu[eu],ex=sx-ep.x,ey=H-40-ep.y,ed=Math.sqrt(ex*ex+ey*ey)||1,es=Math.min(ed,endVacSpeed*dt);
+          if(ed<=24||es>=ed){pu.splice(eu,1);collect(ep.k);spark(sx,H-40,1.1);boom(sx,H-40,PU[ep.k][1],5);}
+          else{ep.x+=ex/ed*es;ep.y+=ey/ed*es;}
+        }
+      }
       /* Solo la aspiradora comprada atrae los power-ups. */
       for(var ci=coinFly.length-1;ci>=0;ci--){var cc=coinFly[ci],cdx=sx-cc.x,cdy=H-40-cc.y,cdist=Math.sqrt(cdx*cdx+cdy*cdy),cstep=Math.min(cdist,1500*dt);if(cdist<=24||cstep>=cdist){profile.coins+=cc.v;coinFly.splice(ci,1);sv();SFX.pu();spark(sx,H-40,1.8);}else{cc.x+=cdx/cdist*cstep;cc.y+=cdy/cdist*cstep;}}
     }

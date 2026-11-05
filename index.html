@@ -246,6 +246,8 @@ function bossAtk(e,bv,ph,pat){
   else if(pat===6){if(lz.length)return;n=Math.min(1+ph+(cb>1?1:0),3);for(i=0;i<n;i++)lz.push({x:Math.max(30,Math.min(W-30,40+(i+R(.15,.85))*(W-80)/n)),t:0});}}
 function newLevel(){
   ens=[];bals=[];mis=[];eb=[];pu=[];lz=[];dec=[];dark=0;inv=0;lvT=1.4;
+  /* En los mundos 8 y 9 los misiles se entregan automáticamente en cada nivel. */
+  if(wi===7||wi===8){tm.mi=14;miCd=0;tip='¡Misiles teledirigidos!';tipT=2;}
   var n=Math.min(4+li+wi,12),boss=li===5;
   for(var i=0;i<n;i++)ens.push({x:R(30,W-30),y:40+(i%3)*42,
     vx:(Math.random()<.5?-1:1)*Math.min(50+L()*7,230),vy:Math.min(16+L()*3,90),
@@ -385,7 +387,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   });
   for(var q=ens.length-1;q>=0;q--)if(ens[q].kx){boom(ens[q].x,ens[q].y,'#ff3b30',24);ens.splice(q,1);}
   dec.forEach(function(d){d.t+=dt;if(!d.f&&d.t>.9){d.f=1;var o={x:d.x,y:d.y};for(var k=-1;k<=1;k++)shoot(o,bv,k*80);}});dec=dec.filter(function(d){return d.t<1.6;});
-  for(var mi=mis.length-1;mi>=0;mi--){var m=mis[mi],ti=-1,td=1e9;for(var ei=0;ei<ens.length;ei++){var te=ens[ei];if(te.big&&te.inv>t)continue;var ex=te.x-m.x,ey=te.y-m.y,dd=ex*ex+ey*ey;if(dd<td){td=dd;ti=ei;}}if(ti<0){mis.splice(mi,1);continue;}var tar=ens[ti],dxm=tar.x-m.x,dym=tar.y-m.y,dm=Math.sqrt(dxm*dxm+dym*dym)||1,ms=300,blend=Math.min(1,dt*5);m.vx+=(dxm/dm*ms-m.vx)*blend;m.vy+=(dym/dm*ms-m.vy)*blend;m.x+=m.vx*dt;m.y+=m.vy*dt;if(dm<=(tar.big?34:22)){mis.splice(mi,1);tar.hp-=tar.big?3:2;tar.fl=t+.12;if(tar.hp<=0)kill(tar,ti);else{SFX.hit();boom(tar.x,tar.y,'#ff7043',12);gain(5);}}else if(m.y<-20||m.x<-20||m.x>W+20)mis.splice(mi,1);}
+  for(var mi=mis.length-1;mi>=0;mi--){var m=mis[mi],ti=-1,td=1e9;for(var ei=0;ei<ens.length;ei++){var te=ens[ei];if(te.big&&te.inv>t)continue;var ex=te.x-m.x,ey=te.y-m.y,dd=ex*ex+ey*ey;if(dd<td){td=dd;ti=ei;}}if(ti<0){mis.splice(mi,1);continue;}var tar=ens[ti],dxm=tar.x-m.x,dym=tar.y-m.y,dm=Math.sqrt(dxm*dxm+dym*dym)||1,ms=300,blend=Math.min(1,dt*5);m.vx+=(dxm/dm*ms-m.vx)*blend;m.vy+=(dym/dm*ms-m.vy)*blend;m.x+=m.vx*dt;m.y+=m.vy*dt;if(dm<=(tar.big?34:22)){mis.splice(mi,1);var bx=tar.x,by=tar.y;SFX.hit();boom(bx,by,'#ff7043',30);spark(bx,by,2.2);shk=Math.max(shk,.12);for(var ej=ens.length-1;ej>=0;ej--){var hit=ens[ej],hx=hit.x-bx,hy=hit.y-by;if(hx*hx+hy*hy<75*75&&!(hit.big&&hit.inv>t)){hit.hp-=hit.big?3:2;hit.fl=t+.14;if(hit.hp<=0)kill(hit,ej);else{boom(hit.x,hit.y,'#ff9b54',10);gain(5);}}}}else if(m.y<-20||m.x<-20||m.x>W+20)mis.splice(mi,1);}
   var bo=ens.filter(function(e){return e.big;})[0],dtg=bo&&bossPats(wi).indexOf(5)>=0?[0,.42,.62][bph(bo)]:0;dark+=(dtg-dark)*Math.min(1,dt*2);
   lz.forEach(function(l){l.t+=dt;if(l.t>1.25&&l.t<1.5&&Math.abs(sx-l.x)<15)hurt(1);});lz=lz.filter(function(l){return l.t<1.6;});
   bals.forEach(function(bl){eb.forEach(function(o){if(o.hm&&o.y<H&&Math.abs(o.x-bl.x)<14&&Math.abs(o.y-bl.y)<14){var ox=o.x,oy=o.y;o.y=H+99;bl.y=-99;boom(ox,oy,'#b388ff',16);gain(5);SFX.hit();}});});

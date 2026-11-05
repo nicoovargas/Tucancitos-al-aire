@@ -609,13 +609,13 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     bird({x:W/2-10,y:275,vx:1,hp:1,ph:0},WO[0]);
     txt('Mundos infinitos y un jefe único en cada uno',322,14);
     txt('Desde la Costa las aves disparan: esquiva',346,14,'#ff6b6b');
-    txt('Las aves aguantan más disparos en cada mundo',370,14,'#c77dff');txt('Power-ups: escudo, balas, vida, bomba y misiles desde mundo 8',394,13,'#4dd0e1');
+    txt('Las aves aguantan más disparos en cada mundo',370,14,'#c77dff');txt('Mejora tu nave en la tienda; desbloquea misiles desde el mundo 7',394,13,'#4dd0e1');
     txt('Récord: '+best,426,16,'#ffd23f');
     if(save){txt('Partida guardada: mundo '+(save.wi+1)+', nivel '+(save.li+1),454,15,'#4dd0e1');txt('Toca '+tapTxt()+' para continuar',478,18,'#43d17a');}
     else txt('Toca '+tapTxt()+' para empezar',462,18,'#43d17a');
     txt(ctl==='touch'?'Desliza el dedo para mover. La nave dispara sola.':'Botones: ← → mover, Disparar',510,12,'#bbb');txt('Teclado: A/D mover, espacio disparar, P menú',530,12,'#bbb');
   }
-    if(st==='mundo'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);txt('Mundo '+(wi+1),H/2-14,36,'#ffd23f');txt(wname(wi)+': '+P.a,H/2+22,20);txt(SH[profile.ship].n+': '+SH[profile.ship].d,H/2+54,16,SH[profile.ship].col);txt((wi>0?'¡Nave mejorada! ':'')+'Corazones: '+maxL(),H/2+78,15,'#ffd23f');txt('Jefe: '+bname(wi),H/2+104,16,'#ff8a80');wrap(story(wi),30).forEach(function(l,i){txt(l,H/2+138+i*22,14,'#f6e7b4');});}
+    if(st==='mundo'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);txt('Mundo '+(wi+1),H/2-14,36,'#ffd23f');txt(wname(wi)+': '+P.a,H/2+22,20);txt(SH[profile.ship].n+': '+SH[profile.ship].d,H/2+54,16,SH[profile.ship].col);txt('Blindaje: '+maxL()+' corazones',H/2+78,15,'#ffd23f');txt('Jefe: '+bname(wi),H/2+104,16,'#ff8a80');wrap(story(wi),30).forEach(function(l,i){txt(l,H/2+138+i*22,14,'#f6e7b4');});}
   if(st==='pausa'){g.fillStyle='rgba(0,0,0,.55)';g.fillRect(0,0,W,H);txt('Pausa',H/2,34);}
   if(st==='nivel'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);if(li===5){g.save();g.translate(W/2,H/2-70);g.rotate(-.12);g.translate(-W/2,-(H/2-70));txt('¡K.O.!',H/2-70,72,'#ff3b30');g.restore();}
   txt(li===5?'¡Jefe derrotado!':'¡Nivel '+(li+1)+' completado!',H/2-10,26,'#ffd23f');txt('Bonus +'+((L()+1)*30),H/2+24,18);if(li===5){txt('¡Fragmento del Tótem recuperado!',H/2+52,14,'#8fe3ee');wrap(bname(wi)+': '+bline(wi),30).forEach(function(l,i){txt(l,H/2+84+i*22,14,'#f6e7b4');});}}

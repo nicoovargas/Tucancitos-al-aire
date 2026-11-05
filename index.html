@@ -250,7 +250,7 @@ function newLevel(){
   if(wi>maxW)maxW=wi;save={wi:wi,li:li,vidas:vidas,pts:pts,nl:nextLife,tot:tot,nx:nx};sv();
 }
 function start(cont,w0){
-  if(cont&&save){wi=save.wi;li=save.li;vidas=save.vidas;pts=save.pts;tot=Math.min(totemCap(),save.tot||0);nx=save.nx||0;nextLife=save.nl||(Math.floor(pts/300)+1)*300;}
+  if(cont&&save){wi=save.wi;li=save.li;vidas=Math.min(3,save.vidas);pts=save.pts;tot=Math.min(totemCap(),save.tot||0);nx=save.nx||0;nextLife=save.nl||(Math.floor(pts/300)+1)*300;}
   else{wi=w0||0;li=0;vidas=3;tot=0;nx=0;pts=0;nextLife=300;save=null;sv();}
   startBest=best;win=false;sx=W/2;ens=[];pu=[];coinFly=[];mis=[];tm.sh=tm.mu=tm.ra=tm.mi=0;miCd=0;spT=8;st='mundo';msgT=2.4;if(!storySeen){storySeen=true;try{localStorage.setItem('galaga-story','1');}catch(e){}st='cine';cineK=1;cineT=0;}}
 function terminar(w){win=w;st='fin';save=null;finT=4;sv();if(w)SFX.win();else SFX.over();}

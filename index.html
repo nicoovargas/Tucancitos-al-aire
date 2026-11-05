@@ -327,10 +327,15 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;
       if(tgt!==null){var ndx=tgt-sx,nmx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
       sx=Math.max(20,Math.min(W-20,sx));
-      pu.forEach(function(p){p.y+=p.v*dt;});
+      /* Al terminar el nivel, todos los power-ups restantes son absorbidos
+         rápidamente por la nave, sin depender de su posición vertical. */
+      var magnet= Math.min(1,dt*10);
       for(var puI=pu.length-1;puI>=0;puI--){var pp=pu[puI];
-        if(Math.abs(pp.x-sx)<(pp.k===5?34:24)&&pp.y>H-(pp.k===5?86:70)&&pp.y<H-18){pu.splice(puI,1);collect(pp.k);}
-        else if(pp.y>H+12)pu.splice(puI,1);
+        pp.x+=(sx-pp.x)*magnet;
+        pp.y+=(H-38-pp.y)*magnet;
+        if(Math.abs(pp.x-sx)<30&&Math.abs(pp.y-(H-38))<30){
+          pu.splice(puI,1);collect(pp.k);
+        }
       }
     }
     msgT-=dt;

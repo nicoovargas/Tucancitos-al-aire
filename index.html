@@ -358,7 +358,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   for(var q in tm)if(q!=='mi')tm[q]=Math.max(0,tm[q]-dt);
   if(spT<=0){spT=R(8,13);drop(R(30,W-30),-10,1);}
   /* Los tótems caen del cielo por separado; su frecuencia aumenta gradualmente. */
-  if(st==='jugando'&&!tot&&!pu.some(function(p){return p.k===5;})){totT-=dt;if(totT<=0){pu.push({x:R(30,W-30),y:-24,v:78,k:5});totT=(wi===8&&li===5)?R(8,11):Math.max(13,27-wi*1.45);}}
+  if(st==='jugando'&&!tot&&!pu.some(function(p){return p.k===5;})){totT-=dt;if(totT<=0){pu.push({x:R(30,W-30),y:-24,v:190,k:5});totT=(wi===8&&li===5)?R(8,11):Math.max(13,27-wi*1.45);}}
   pu.forEach(function(p){p.y+=p.v*dt;});
   for(var u=pu.length-1;u>=0;u--){var p=pu[u];
     if(Math.abs(p.x-sx)<(p.k===5?34:24)&&p.y>H-(p.k===5?86:70)&&p.y<H-18){pu.splice(u,1);collect(p.k);}

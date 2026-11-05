@@ -75,7 +75,7 @@ var WO=[
 var st='inicio',wi=0,li=0,vidas=3,pts=0,nextLife=300,win=false,sx=W/2,cd=0,msgT=0,t=0,inv=0;
 var ens=[],bals=[],mis=[],eb=[],parts=[],hojas=[];
 var KEY='galaga-tucanes-v1',best=0,save=null,startBest=0;
-var pu=[],tm={sh:0,mu:0,ra:0,mi:0},miCd=0,spT=8,tip='',tipT=0,finT=0,lastE=0,lvT=0;
+var pu=[],tm={sh:0,mu:0,ra:0,mi:0},miCd=0,spT=8,totT=6,tip='',tipT=0,finT=0,lastE=0,lvT=0;
 function pickV(){if(Math.random()>.4)return 0;var a=[1,2,3,4].slice(0,Math.min(4,wi+1));return a[Math.floor(Math.random()*a.length)];}
 var AC=null,MG=null,snd=true,vol=.7;try{snd=localStorage.getItem('galaga-snd')!=='0';var vs=localStorage.getItem('galaga-vol');if(vs!==null)vol=Math.max(0,Math.min(1,+vs));}catch(e){}
 function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=vol;MG.connect(AC.destination);mG=AC.createGain();mG.gain.value=.55;mG.connect(MG);loadTotemSnd();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
@@ -245,9 +245,9 @@ function bossAtk(e,bv,ph,pat){
   else if(pat===5){n=3+ph+cb;for(i=0;i<n;i++)shoot(e,bv,(i-(n-1)/2)*60);}
   else if(pat===6){if(lz.length)return;n=Math.min(1+ph+(cb>1?1:0),3);for(i=0;i<n;i++)lz.push({x:Math.max(30,Math.min(W-30,40+(i+R(.15,.85))*(W-80)/n)),t:0});}}
 function newLevel(){
-  ens=[];bals=[];mis=[];eb=[];pu=[];lz=[];dec=[];dark=0;inv=0;lvT=1.4;
-  /* En los mundos 8 y 9 los misiles se entregan automáticamente en cada nivel. */
-  if(wi===7||wi===8){tm.mi=14;miCd=0;tip='¡Misiles teledirigidos!';tipT=2;}
+  ens=[];bals=[];mis=[];eb=[];pu=[];lz=[];dec=[];dark=0;inv=0;lvT=1.4;totT=(wi===8&&li===5)?4:6;
+  /* Desde el mundo 8, los misiles son una mejora permanente de la nave. */
+  if(wi>=7){tm.mi=1;miCd=0;tip='¡Misiles permanentes!';tipT=2;}
   var n=Math.min(4+li+wi,12),boss=li===5;
   for(var i=0;i<n;i++)ens.push({x:R(30,W-30),y:40+(i%3)*42,
     vx:(Math.random()<.5?-1:1)*Math.min(50+L()*7,230),vy:Math.min(16+L()*3,90),
@@ -268,10 +268,10 @@ function pausa(){if(menuOn)menuClose();else menuOpen();}
 function boom(x,y,c,n){for(var i=0;i<(n||14);i++){var a=R(0,6.28),v=R(40,160);
   parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:R(.3,.7),c:c});}}
 function gain(p){pts+=p;if(pts>=nextLife){vidas=Math.min(vidas+1,maxL()+3);nx++;nextLife+=400+250*nx;}if(pts>best){best=pts;sv();}}
-function drop(x,y,f,v){if(!f&&Math.random()>.14)return;var r=Math.random();var k=wi>=7&&r<.18?6:r<.22?0:r<.44?1:r<.62?2:r<.76?3:r<.9?4:5;if(k===5&&tot)k=3;pu.push({x:x,y:y,v:v||90,k:k});}
-function kill(e,j){SFX.kill();if(e.big&&!tot)pu.push({x:e.x,y:e.y,v:150,k:5});puff(e.x,e.y,e.big?2.2:1);boom(e.x,e.y,'#ffd23f',e.big?60:14);ens.splice(j,1);if(e.big)ens.length=0;gain(e.big?250:10);drop(e.x,e.y,e.big,150);}
+function drop(x,y,f,v){if(!f&&Math.random()>.14)return;var r=Math.random(),k;if(wi>=7){k=r<.18?6:r<.36?0:r<.56?1:r<.74?2:r<.88?3:4;}else{k=r<.25?0:r<.48?1:r<.70?2:r<.86?3:4;}pu.push({x:x,y:y,v:v||90,k:k});}
+function kill(e,j){SFX.kill();puff(e.x,e.y,e.big?2.2:1);boom(e.x,e.y,'#ffd23f',e.big?60:14);ens.splice(j,1);if(e.big)ens.length=0;gain(e.big?250:10);drop(e.x,e.y,e.big,150);}
 function collect(k){SFX.pu();tip=PU[k][2];tipT=1.6;
-  if(k===0)tm.sh=10;else if(k===1)tm.mu=12;else if(k===2)tm.ra=10;else if(k===6){tm.mi=14;miCd=0;}
+  if(k===0)tm.sh=10;else if(k===1)tm.mu=12;else if(k===2)tm.ra=10;else if(k===6){tm.mi=1;miCd=0;}
   else if(k===3)vidas=Math.min(vidas+1,maxL()+3);else if(k===5)tot=1;
   else{eb=[];for(var j=ens.length-1;j>=0;j--){var e=ens[j];if(!e||(e.big&&e.inv>t))continue;e.hp-=e.big?Math.round(e.mhp*.05):1;if(e.hp<=0)kill(e,j);else boom(e.x,e.y,'#c77dff',8);}}}
 function shoot(e,v,dx){SFX.eshot();if(dx===undefined)dx=(sx-e.x)/Math.max(.3,(H-40-e.y)/v)*Math.min(1,.2+.25*wi);eb.push({x:e.x,y:e.y+10,vx:dx,vy:v});}
@@ -355,8 +355,10 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
 
   sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;if(tgt!==null){var dx=tgt-sx,mx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-mx,Math.min(mx,dx));}sx=Math.max(20,Math.min(W-20,sx));
   cd-=dt;inv-=dt;tipT-=dt;spT-=dt;lvT-=dt;phT-=dt;
-  for(var q in tm)tm[q]=Math.max(0,tm[q]-dt);
+  for(var q in tm)if(q!=='mi')tm[q]=Math.max(0,tm[q]-dt);
   if(spT<=0){spT=R(8,13);drop(R(30,W-30),-10,1);}
+  /* Los tótems caen del cielo por separado; su frecuencia aumenta gradualmente. */
+  if(st==='jugando'&&!tot&&!pu.some(function(p){return p.k===5;})){totT-=dt;if(totT<=0){pu.push({x:R(30,W-30),y:-24,v:78,k:5});totT=(wi===8&&li===5)?R(8,11):Math.max(13,27-wi*1.45);}}
   pu.forEach(function(p){p.y+=p.v*dt;});
   for(var u=pu.length-1;u>=0;u--){var p=pu[u];
     if(Math.abs(p.x-sx)<(p.k===5?34:24)&&p.y>H-(p.k===5?86:70)&&p.y<H-18){pu.splice(u,1);collect(p.k);}
@@ -586,7 +588,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');
     var nr=best>startBest;g.font='12px Bevan,Georgia,serif';g.fillStyle=nr?'#ffd23f':'#bbb';
     lt((nr?'¡Nuevo récord! ':'Récord ')+best,W-10,41,12,nr?'#ffd23f':'#d9c9a0','right');
-    g.textAlign='left';g.fillStyle='#4dd0e1';var ef=[];if(tm.sh>0)ef.push('Escudo '+Math.ceil(tm.sh));if(tm.mu>0)ef.push('Balas+ '+Math.ceil(tm.mu));if(tm.ra>0)ef.push('Rápido '+Math.ceil(tm.ra));if(tm.mi>0)ef.push('Misiles '+Math.ceil(tm.mi));
+    g.textAlign='left';g.fillStyle='#4dd0e1';var ef=[];if(tm.sh>0)ef.push('Escudo '+Math.ceil(tm.sh));if(tm.mu>0)ef.push('Balas+ '+Math.ceil(tm.mu));if(tm.ra>0)ef.push('Rápido '+Math.ceil(tm.ra));if(tm.mi>0)ef.push('Misiles ∞');
     lt(ef.join('  '),10,41,12,'#8fe3ee','left');
     if(tipT>0&&st==='jugando')txt(tip,72,18,'#ffd23f');
     if(phT>0&&st==='jugando')txt(phTxt,H/2-30,40,'#ff6b6b');

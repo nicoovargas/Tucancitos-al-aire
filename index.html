@@ -327,19 +327,20 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       sx+=(K.r-K.l)*SH[Math.min(wi,7)].sp*dt;
       if(tgt!==null){var ndx=tgt-sx,nmx=SH[Math.min(wi,7)].sp*2.2*dt;sx+=Math.max(-nmx,Math.min(nmx,ndx));}
       sx=Math.max(20,Math.min(W-20,sx));
-      /* Al terminar el nivel, todos los power-ups restantes son absorbidos
-         rápidamente por la nave, sin depender de su posición vertical. */
-      var magnet= Math.min(1,dt*10);
+      /* Imán de final de nivel: trayectoria directa hacia el centro de la nave,
+         con velocidad fija para que todos lleguen incluso desde la parte alta. */
       for(var puI=pu.length-1;puI>=0;puI--){var pp=pu[puI];
-        pp.x+=(sx-pp.x)*magnet;
-        pp.y+=(H-38-pp.y)*magnet;
-        if(Math.abs(pp.x-sx)<30&&Math.abs(pp.y-(H-38))<30){
-          pu.splice(puI,1);collect(pp.k);
-        }
+        var pdx=sx-pp.x,pdy=(H-40)-pp.y,pdist=Math.sqrt(pdx*pdx+pdy*pdy);
+        var pstep=Math.min(pdist,1400*dt);
+        if(pdist<=28||pstep>=pdist){
+          pu.splice(puI,1);collect(pp.k);spark(sx,H-40,1.4);boom(sx,H-40,PU[pp.k][1],5);
+        }else{pp.x+=pdx/pdist*pstep;pp.y+=pdy/pdist*pstep;}
       }
     }
     msgT-=dt;
     if(msgT<=0){
+      /* Respaldo: ningún power-up puede perderse al cambiar de nivel. */
+      if(st==='nivel'&&pu.length){var left=pu.splice(0,pu.length);left.forEach(function(pp){collect(pp.k);});}
       if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(maxL()+3,Math.max(vidas+1,maxL()));}
         }
       if(li===0&&st==='nivel'){if(wi===8&&!epiSeen){st='cine';cineK=2;cineT=0;}else{st='mundo';msgT=2.4;}}else{newLevel();st='jugando';}
@@ -406,7 +407,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       }
     }
   }
-  if(ens.length===0){gain((L()+1)*30);st='nivel';msgT=2;lz=[];dec=[];SFX.level();}
+  if(ens.length===0){gain((L()+1)*30);st='nivel';msgT=3.5;lz=[];dec=[];SFX.level();}
 }
 
 function birdVec(e,P){

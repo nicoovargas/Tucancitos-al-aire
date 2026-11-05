@@ -46,7 +46,7 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 100
 <section id="v-home"><h2>Tucancitos al aire</h2><p class="note" id="home-info"></p><button id="home-play">Jugar</button><button id="home-shop">Tienda</button><button id="home-worlds">Elegir mundo</button></section>
 <section id="v-worlds" style="display:none"><h2>Elegir mundo</h2><div id="worlds"></div><p class="note" id="wnote"></p><button id="world-back">Volver</button></section>
 <section id="v-shop" style="display:none"><h2>Tienda</h2><p class="note" id="shop-coins"></p><div id="shop-items"></div><button id="shop-back">Volver</button></section>
-<section id="v-pause" style="display:none"><h2>Pausa</h2><button id="m-go">Continuar</button><button id="m-home">Menú principal</button><button id="m-shop">Tienda</button><button id="m-w">Cambiar de mundo</button><div id="worlds-pause"></div><button id="m-ctl">Controles: Táctil</button><button id="m-snd">Efectos: Sí</button><button id="m-mus">Música: Sí</button><label>Volumen<input type="range" id="vol" min="0" max="100" value="70"></label></section>
+<section id="v-pause" style="display:none"><h2>Pausa</h2><button id="m-go">Continuar</button><button id="m-home">Menú principal</button><button id="m-shop">Tienda</button><button id="m-w">Cambiar de mundo</button><div id="worlds-pause"></div><button id="pause-world-back" style="display:none">Volver</button><button id="m-ctl">Controles: Táctil</button><button id="m-snd">Efectos: Sí</button><button id="m-mus">Música: Sí</button><label>Volumen<input type="range" id="vol" min="0" max="100" value="70"></label></section>
 </div></div>
 <script>
 (function(){
@@ -300,7 +300,7 @@ function shopRender(){var box=document.getElementById('shop-items');box.innerHTM
  else item('Misiles teledirigidos','Se habilitan al llegar al mundo 7. Persiguen enemigos.',320,false,ready,function(){profile.coins-=320;profile.missiles=true;sv();});
 }
 document.getElementById('mb').addEventListener('click',pausa);
-document.getElementById('home-play').addEventListener('click',function(){if(save){menuClose(true);start(true);}else{buildWorlds('worlds');showView('worlds');}});
+document.getElementById('home-play').addEventListener('click',function(){buildWorlds('worlds');showView('worlds');});
 document.getElementById('home-shop').addEventListener('click',function(){shopRender();showView('shop');});
 document.getElementById('home-worlds').addEventListener('click',function(){buildWorlds('worlds');showView('worlds');});
 document.getElementById('world-back').addEventListener('click',function(){showView(prevSt?'pause':'home');});
@@ -308,7 +308,8 @@ document.getElementById('shop-back').addEventListener('click',function(){showVie
 document.getElementById('m-go').addEventListener('click',function(){menuClose();});
 document.getElementById('m-home').addEventListener('click',function(){st='inicio';prevSt=null;showView('home');refreshHome();});
 document.getElementById('m-shop').addEventListener('click',function(){shopRender();showView('shop');});
-document.getElementById('m-w').addEventListener('click',function(){buildWorlds('worlds-pause');});
+document.getElementById('m-w').addEventListener('click',function(){buildWorlds('worlds-pause');document.getElementById('pause-world-back').style.display='block';});
+document.getElementById('pause-world-back').addEventListener('click',function(){document.getElementById('worlds-pause').innerHTML='';this.style.display='none';});
 bSnd.addEventListener('click',mute);
 document.getElementById('m-mus').addEventListener('click',musToggle);
 setTimeout(function(){menuOn=true;showView('home');refreshHome();mEl.classList.add('on');},0);
@@ -580,7 +581,6 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
   mis.forEach(function(m){g.save();g.translate(m.x,m.y);g.rotate(Math.atan2(m.vy,m.vx)+Math.PI/2);g.fillStyle='rgba(255,112,67,.45)';g.fillRect(-3,7,6,10);g.fillStyle='#1a0f08';g.fillRect(-4,-8,8,17);g.fillStyle='#ff7043';g.fillRect(-2,-6,4,12);g.fillStyle='#fff1d6';g.fillRect(-2,-5,4,4);g.restore();});
   g.strokeStyle='#1a0f08';g.lineWidth=2.2;eb.forEach(function(b){if(b.hm){g.fillStyle='#1a0f08';g.fillRect(b.x-11,b.y-11,22,22);g.fillStyle='#7c4dff';g.fillRect(b.x-9,b.y-9,18,18);g.fillStyle='#d1c4ff';g.fillRect(b.x-6,b.y-4,5,5);g.fillRect(b.x+1,b.y-4,5,5);g.fillStyle='#1a0f08';g.fillRect(b.x-4,b.y-3,2,3);g.fillRect(b.x+3,b.y-3,2,3);return;}g.fillStyle='#1a0f08';g.fillRect(b.x-7,b.y-7,14,14);g.fillStyle='#ff6fa5';g.fillRect(b.x-5,b.y-5,10,10);g.fillStyle='#ffd6e7';g.fillRect(b.x-3,b.y-3,4,4);});
   coinFly.forEach(function(c){g.fillStyle='#1a0f08';g.fillRect(c.x-10,c.y-10,20,20);g.fillStyle='#ffd23f';g.fillRect(c.x-8,c.y-8,16,16);g.fillStyle='#fff3a6';g.font='bold 13px monospace';g.textAlign='center';g.fillText('¢',c.x,c.y+5);});
-   coinFly.forEach(function(c){g.fillStyle='#1a0f08';g.fillRect(c.x-10,c.y-10,20,20);g.fillStyle='#ffd23f';g.fillRect(c.x-8,c.y-8,16,16);g.fillStyle='#fff3a6';g.font='bold 13px monospace';g.textAlign='center';g.fillText('¢',c.x,c.y+5);});
    pu.forEach(function(p){if(p.k===5&&goldTotem(p.x,p.y+Math.round(Math.sin(t*5)*2)*2,64,t))return;var c=PU[p.k],o=Math.round(Math.sin(t*8+p.x)*2)*2;g.fillStyle='#1a0f08';g.fillRect(p.x-12,p.y-12+o,24,24);g.fillStyle=c[1];g.fillRect(p.x-10,p.y-10+o,20,20);g.fillStyle='rgba(255,255,255,.6)';g.fillRect(p.x-10,p.y-10+o,20,4);g.fillRect(p.x-10,p.y-10+o,4,20);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(p.x-10,p.y+6+o,20,4);g.fillRect(p.x+6,p.y-10+o,4,20);g.fillStyle='#1a0f08';g.font='bold 16px monospace';g.textAlign='center';g.fillText(c[0],p.x,p.y+6+o);});
   if(st!=='inicio'&&!(inv>0&&Math.floor(t*12)%2)){
     ship();

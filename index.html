@@ -162,7 +162,7 @@ function bossPats(w){if(w<8)return [BI[w]];return tri()[(w-8)%210];}
 function wtint(){var k='w'+wi,w=W_(wi);if(!TINTS[k])TINTS[k]={b:w.rgb,h:w.hh};return k;}
 function minions(n,k){for(var i=0;i<n;i++){var m={x:R(40,W-40),y:30,vx:(Math.random()<.5?-1:1)*Math.min(50+L()*7,230),vy:Math.min(16+L()*3,90),hp:Math.max((profile.bullets||1)+1,bhp()),ph:R(0,6),v:0,tf:false};
   if(k){m.v=5;m.kz=0;m.kzT=1.2+i*.6;m.hp=Math.max((profile.bullets||1)+1,Math.round(bhp()*.6));}ens.push(m);}}
-function maxL(){return 3;}function totemCap(){return profile.totemLevel;}
+function maxL(){return wi>=9?5:3;}function totemCap(){return profile.totemLevel;}
 function bossDeco(e){var p=e.dk!==undefined?e.dk:bossPats(wi)[0],x=4,y=-6,f=Math.sin(t*14);
   function R2(c,a,b,w,hh){g.fillStyle=c;g.fillRect(x+a,y+b,w,hh);}
   if(p===0){R2('#3fa34d',-4,-5,2,3);R2('#52c75f',-1,-6,2,4);R2('#3fa34d',2,-5,2,3);}
@@ -252,7 +252,7 @@ function newLevel(){
   if(wi>maxW)maxW=wi;save={wi:wi,li:li,vidas:vidas,pts:pts,nl:nextLife,tot:tot,nx:nx};sv();
 }
 function start(cont,w0){
-  if(cont&&save){wi=save.wi;li=save.li;vidas=Math.min(3,save.vidas);pts=save.pts;tot=Math.min(totemCap(),save.tot||0);nx=save.nx||0;nextLife=save.nl||(Math.floor(pts/300)+1)*300;}
+  if(cont&&save){wi=save.wi;li=save.li;vidas=Math.min(maxL(),save.vidas);pts=save.pts;tot=Math.min(totemCap(),save.tot||0);nx=save.nx||0;nextLife=save.nl||(Math.floor(pts/300)+1)*300;}
   else{wi=w0||0;li=0;vidas=3;tot=0;nx=0;pts=0;nextLife=300;save=null;sv();}
   startBest=best;win=false;sx=W/2;ens=[];pu=[];coinFly=[];mis=[];tm.sh=tm.mu=tm.ra=tm.mi=0;miCd=0;spT=8;st='mundo';msgT=2.4;if(!storySeen){storySeen=true;try{localStorage.setItem('galaga-story','1');}catch(e){}st='cine';cineK=1;cineT=0;}}
 function terminar(w){win=w;st='fin';save=null;finT=4;sv();if(w)SFX.win();else SFX.over();}
@@ -264,7 +264,7 @@ function gain(p){pts+=p;if(pts>=nextLife){nx++;nextLife+=400+250*nx;}if(pts>best
 function drop(x,y,f,v){if(!f&&Math.random()>.14)return;var r=Math.random(),k=r<.31?1:r<.57?2:r<.79?3:4;pu.push({x:x,y:y,v:v||90,k:k});}
 function kill(e,j){SFX.kill();puff(e.x,e.y,e.big?2.2:1);boom(e.x,e.y,'#ffd23f',e.big?60:14);ens.splice(j,1);if(e.big)ens.length=0;gain(e.big?250:10);drop(e.x,e.y,e.big,150);}
 function collect(k){SFX.pu();tip=PU[k][2];tipT=1.6;
-  if(k===1)tm.mu=12;else if(k===2)tm.ra=10;else if(k===3)vidas=Math.min(3,vidas+1);else if(k===5){tot=Math.min(totemCap(),tot+1);sv();}
+  if(k===1)tm.mu=12;else if(k===2)tm.ra=10;else if(k===3)vidas=Math.min(maxL(),vidas+1);else if(k===5){tot=Math.min(totemCap(),tot+1);sv();}
   else{eb=[];for(var j=ens.length-1;j>=0;j--){var e=ens[j];if(!e||(e.big&&e.inv>t))continue;e.hp-=e.big?Math.round(e.mhp*.05):1;if(e.hp<=0)kill(e,j);else boom(e.x,e.y,'#c77dff',8);}}}
 function shoot(e,v,dx){SFX.eshot();if(dx===undefined)dx=(sx-e.x)/Math.max(.3,(H-40-e.y)/v)*Math.min(.48,.18+.035*wi);eb.push({x:e.x,y:e.y+10,vx:dx,vy:v});}
 
@@ -348,7 +348,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
     msgT-=dt;
     if(msgT<=0){
       /* Los power-ups no recogidos no se conceden automáticamente. */
-      if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(3,Math.max(vidas+1,maxL()));}
+      if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(maxL(),Math.max(vidas+1,maxL()));}
         }
       if(li===0&&st==='nivel'){if(wi===8&&!epiSeen){st='cine';cineK=2;cineT=0;}else{st='mundo';msgT=2.4;}}else{newLevel();st='jugando';}
     }
@@ -387,7 +387,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       if(pat===7)pat=CYC[Math.floor(t/5)%7];
       if(!ctrl)e.y=90+Math.sin(t*(1.5+ph*.8))*(20+ph*25);
       if(!(e.inv>t)&&Math.random()<dt*Math.min(3,(1+Math.min(wi,7)*.4)*(1+ph*.35))*(wi<3?.62:1)*(wi===1?.72:1)*(pat===3||pat===4?.6:pat===6?.28:pat===5?.5:1))bossAtk(e,bv,ph,pat);}
-    else{e.y+=e.vy*dt+Math.sin(t*3+e.ph)*14*dt;
+    else{var lowerLine=H-190,lowerCount=0;for(var liw=0;liw<ens.length;liw++){var other=ens[liw];if(other!==e&&!other.big&&other.y>=lowerLine)lowerCount++;}var nextY=e.y+e.vy*dt+Math.sin(t*3+e.ph)*14*dt;if(nextY>lowerLine&&lowerCount>=3)nextY=lowerLine;e.y=Math.min(H-75,nextY);
       if(e.y<H/2&&Math.random()<dt*Math.max(rate*(e.v===3?3:1),e.v===3?.15:0))shoot(e,bv);}
     var hw=e.big?50:24;
     if(e.x<hw){e.x=hw;e.vx=Math.abs(e.vx);}

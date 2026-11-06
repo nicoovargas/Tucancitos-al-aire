@@ -305,7 +305,7 @@ function bossHp(){var bl=Math.max(1,Math.min(6,profile.bullets||1)),early=wi===0
 var WHU=[45,210,10,195,35,265,55,155];
 function bossKey(e){var ph=bph(e),k='B'+wi+'_'+ph,hu=wi<8?WHU[BI[wi]]:W_(wi).hh;if(!TINTS[k])TINTS[k]={b:hsl(hu+ph*28,.85,.52),h:(hu+150)%360};return k;}
 function bph(e){var r=e.hp/e.mhp;return r<=1/3?2:r<=2/3?1:0;}
-var phT=0,phTxt='',shk=0,dec=[],dark=0,revT=0;,grapple=null,ambushT=16
+var phT=0,phTxt='',shk=0,dec=[],dark=0,revT=0,grapple=null,ambushT=16;
 function drawDark(){var gr=g.createRadialGradient(sx,H-70,90,sx,H-70,330);gr.addColorStop(0,'rgba(8,2,20,0)');gr.addColorStop(1,'rgba(8,2,20,'+dark+')');g.fillStyle=gr;g.fillRect(0,0,W,H);}
 function bossAtk(e,bv,ph,pat){
   if(pat===7)pat=CYC[Math.floor(t/5)%7];

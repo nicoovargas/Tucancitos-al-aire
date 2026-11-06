@@ -31,10 +31,45 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 70p
 .card label{font-size:14px;display:flex;flex-direction:column;gap:6px}
 #vol{width:100%;touch-action:pan-x;accent-color:#2f7d33}
 .note{font-size:12px;text-align:center;opacity:.8;margin:0}
+
+body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked #menu{visibility:hidden}
+#auth-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;background:radial-gradient(circle at 50% 20%,#245b35,#081b10 72%);font-family:MinecraftFive,Georgia,serif}
+#auth-screen[hidden]{display:none}
+.auth-card{width:min(100%,360px);box-sizing:border-box;background:#eadcb8;color:#1a0f08;border:4px solid #1a0f08;border-radius:16px;box-shadow:0 6px 0 #1a0f08;padding:20px;display:flex;flex-direction:column;gap:12px}
+.auth-card h1{font-size:22px;text-align:center;margin:0}
+.auth-card p{font-size:12px;line-height:1.5;text-align:center;margin:0}
+.auth-card label{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.auth-card input{width:100%;box-sizing:border-box;min-height:44px;border:2px solid #1a0f08;border-radius:8px;padding:8px;font:16px system-ui;background:#fff9e8;color:#1a0f08}
+.auth-card button{flex:none;width:100%;min-height:46px}
+.auth-card .auth-help{opacity:.8}
+.player-profile{display:flex;align-items:center;gap:7px;position:relative;margin-right:auto;min-width:0;color:#fff;font:13px MinecraftFive,Georgia,serif;text-shadow:1px 2px #1a0f08}
+#profile-avatar{flex:none;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;font-size:18px}
+#profile-name{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-menu{position:absolute;z-index:30;top:44px;left:0;width:150px;padding:8px;background:#eadcb8;border:3px solid #1a0f08;border-radius:10px;box-shadow:0 3px #1a0f08}
+.profile-menu button{width:100%;min-height:40px;font-size:12px}
+
 </style>
 </head>
 <body>
-<div class="top"><button id="mb" aria-label="Pausa y menú"><i></i><i></i> Pausa</button></div>
+<div id="auth-screen">
+  <div class="auth-card">
+    <h1>Tucancitos al aire</h1>
+    <p id="auth-message">Inicia sesión o crea una cuenta para guardar tu progreso.</p>
+    <label>Nombre de usuario<input id="auth-username" type="text" maxlength="16" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Tu usuario"></label>
+    <label>Contraseña<input id="auth-password" type="password" maxlength="128" autocomplete="current-password" placeholder="Tu contraseña"></label>
+    <button id="auth-login" type="button">Iniciar sesión</button>
+    <button id="auth-register" type="button">Crear cuenta</button>
+    <p class="auth-help">Usuario: 3–16 letras, números o _. Contraseña: mínimo 8 caracteres.</p>
+  </div>
+</div>
+<div class="top">
+<div id="player-profile" class="player-profile" style="display:none">
+<button id="profile-avatar" type="button" aria-label="Perfil">●</button>
+<span id="profile-name"></span>
+<div id="profile-menu" class="profile-menu" style="display:none"><button id="profile-logout" type="button">Cerrar sesión</button></div>
+</div>
+<button id="mb" aria-label="Pausa y menú"><i></i><i></i> Pausa</button>
+</div>
 <canvas id="c"></canvas>
 <div class="pad">
 <button data-k="l" aria-label="Izquierda">←</button>
@@ -49,6 +84,7 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 70p
 </div></div>
 <script>
 (function(){
+document.body.classList.add('auth-locked');
 try{document.fonts.load('20px MinecraftFive');document.fonts.load('20px MinecraftFive');}catch(e){}
 var FF='MinecraftFive';
 var COIN=new Image();COIN.src='data:image/png;base64,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';
@@ -130,7 +166,24 @@ var PU=[['S','#4dd0e1','Escudo'],['M','#ffd23f','Más balas'],['R','#ff8a1f','Di
 var maxW=0;
 function ld(){try{var d=JSON.parse(localStorage.getItem(KEY)||'{}');best=+d.best||0;maxW=Math.max(0,+d.maxW||0);var pr=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');profile.coins=Math.max(0,+pr.coins||0);if(pr.progressionVersion>=2){profile.bullets=Math.max(1,Math.min(6,+pr.bullets||1));profile.totemLevel=Math.max(1,Math.min(3,+pr.totemLevel||1));profile.vacuumLevel=Math.max(0,Math.min(3,+pr.vacuumLevel||0));profile.missiles=!!pr.missiles;profile.bulletsOwned=Math.max(profile.bullets,Math.min(6,+pr.bulletsOwned||profile.bullets));profile.totemOwned=Math.max(profile.totemLevel,Math.min(3,+pr.totemOwned||profile.totemLevel));profile.vacuumOwned=Math.max(profile.vacuumLevel,Math.min(3,+pr.vacuumOwned||profile.vacuumLevel));profile.missilesOwned=!!(pr.missilesOwned||pr.missiles);}else{profile.bullets=1;profile.bulletsOwned=1;profile.totemLevel=1;profile.totemOwned=1;profile.vacuumLevel=0;profile.vacuumOwned=0;profile.missiles=false;profile.missilesOwned=false;}profile.progressionVersion=3;var s=d.save;
   if(s&&s.wi>=0&&s.wi<=999&&s.li>=0&&s.li<=5&&s.vidas>0&&s.pts>=0)save=s;if(save&&save.wi>maxW)maxW=save.wi;}catch(e){}}
-function sv(){try{localStorage.setItem(KEY,JSON.stringify({best:best,save:save,maxW:maxW}));localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}}
+var AUTH_API='https://tucancitos-api.ray-ofici4l.workers.dev';
+var authToken='',authUsername='',cloudSaveTimer=null,cloudBusy=false;
+try{authToken=localStorage.getItem('tucancitos-auth-token')||'';authUsername=localStorage.getItem('tucancitos-auth-user')||'';}catch(e){}
+function cloudProfile(){return {coins:profile.coins,bullets:profile.bullets,bulletsOwned:profile.bulletsOwned,totem:profile.totemLevel,totemOwned:profile.totemOwned,vacuum:profile.vacuumLevel,vacuumOwned:profile.vacuumOwned,missiles:profile.missiles,missilesOwned:profile.missilesOwned,progressionVersion:3,best:best,maxW:maxW,save:save};}
+async function authFetch(path,body){var headers={'Content-Type':'application/json'};if(authToken)headers.Authorization='Bearer '+authToken;var res=await fetch(AUTH_API+path,{method:body?'POST':'GET',headers:headers,body:body?JSON.stringify(body):undefined});var data={};try{data=await res.json();}catch(e){}if(!res.ok)throw new Error(data.error||'No se pudo conectar con el servidor.');return data;}
+function authMsg(msg,bad){var el=document.getElementById('auth-message');el.textContent=msg;el.style.color=bad?'#a32222':'#1a0f08';}
+function applyCloudProfile(p){if(!p)return;profile.coins=Math.max(0,+p.coins||0);profile.bullets=Math.max(1,Math.min(6,+p.bullets||1));profile.bulletsOwned=Math.max(profile.bullets,Math.min(6,+p.bulletsOwned||profile.bullets));profile.totemLevel=Math.max(1,Math.min(3,+p.totem||1));profile.totemOwned=Math.max(profile.totemLevel,Math.min(3,+p.totemOwned||profile.totemLevel));profile.vacuumLevel=Math.max(0,Math.min(3,+p.vacuum||0));profile.vacuumOwned=Math.max(profile.vacuumLevel,Math.min(3,+p.vacuumOwned||profile.vacuumLevel));profile.missilesOwned=!!p.missilesOwned||!!p.missiles;profile.missiles=!!p.missiles;profile.progressionVersion=3;if(Number.isFinite(+p.best))best=Math.max(best,+p.best);if(Number.isFinite(+p.maxW))maxW=Math.max(maxW,+p.maxW);if(p.save&&typeof p.save==='object')save=p.save;}
+function profileUI(){var p=document.getElementById('player-profile');p.style.display=authToken?'flex':'none';document.getElementById('profile-name').textContent=authUsername;refreshHome();}
+function queueCloudSave(){if(!authToken)return;if(cloudSaveTimer)clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(async function(){if(cloudBusy)return;cloudBusy=true;try{await authFetch('/api/save',{profile:cloudProfile()});}catch(e){console.warn('Cloud save:',e.message);}finally{cloudBusy=false;}},1200);}
+async function completeAuth(data,isNew){authToken=data.token;authUsername=data.username;try{localStorage.setItem('tucancitos-auth-token',authToken);localStorage.setItem('tucancitos-auth-user',authUsername);}catch(e){}try{if(isNew){await authFetch('/api/save',{profile:cloudProfile()});}else{var me=await authFetch('/api/me');applyCloudProfile(me.profile);sv();}}catch(e){authMsg(e.message,true);return;}profileUI();document.getElementById('profile-menu').style.display='none';document.getElementById('auth-screen').hidden=true;document.body.classList.remove('auth-locked');authMsg('');}
+async function authAction(kind){var u=document.getElementById('auth-username').value.trim(),p=document.getElementById('auth-password').value;if(!u||!p){authMsg('Escribe tu usuario y contraseña.',true);return;}var buttons=['auth-login','auth-register'];buttons.forEach(function(id){document.getElementById(id).disabled=true;});authMsg(kind==='register'?'Creando cuenta…':'Iniciando sesión…');try{var data=await authFetch(kind==='register'?'/api/register':'/api/login',{username:u,password:p});await completeAuth(data,kind==='register');}catch(e){authMsg(e.message,true);}finally{buttons.forEach(function(id){document.getElementById(id).disabled=false;});}}
+document.getElementById('auth-login').addEventListener('click',function(){authAction('login');});
+document.getElementById('auth-register').addEventListener('click',function(){authAction('register');});
+document.getElementById('auth-password').addEventListener('keydown',function(e){if(e.key==='Enter')authAction('login');});
+document.getElementById('profile-avatar').addEventListener('click',function(){var m=document.getElementById('profile-menu');m.style.display=m.style.display==='none'?'block':'none';});
+document.getElementById('profile-logout').addEventListener('click',function(){try{localStorage.removeItem('tucancitos-auth-token');localStorage.removeItem('tucancitos-auth-user');}catch(e){}authToken='';authUsername='';document.getElementById('profile-menu').style.display='none';document.getElementById('auth-screen').hidden=false;document.body.classList.add('auth-locked');document.getElementById('auth-password').value='';authMsg('Sesión cerrada. Inicia sesión para continuar.');profileUI();});
+async function restoreSession(){if(!authToken){document.getElementById('auth-screen').hidden=false;return;}try{var me=await authFetch('/api/me');authUsername=me.username;applyCloudProfile(me.profile);try{localStorage.setItem('tucancitos-auth-user',authUsername);}catch(e){}sv();profileUI();document.getElementById('auth-screen').hidden=true;document.body.classList.remove('auth-locked');}catch(e){authToken='';authUsername='';try{localStorage.removeItem('tucancitos-auth-token');localStorage.removeItem('tucancitos-auth-user');}catch(x){}document.getElementById('auth-screen').hidden=false;authMsg('Tu sesión terminó. Inicia sesión de nuevo.',true);}}
+function sv(){try{localStorage.setItem(KEY,JSON.stringify({best:best,save:save,maxW:maxW}));localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}queueCloudSave();}
 ld();startBest=best;
 function R(a,b){return a+Math.random()*(b-a);}
 function L(){return wi*6+li;}
@@ -311,6 +364,7 @@ document.getElementById('m-w').addEventListener('click',function(){buildWorlds('
 bSnd.addEventListener('click',mute);
 document.getElementById('m-mus').addEventListener('click',musToggle);
 setTimeout(function(){menuOn=true;showView('home');refreshHome();mEl.classList.add('on');},0);
+restoreSession();
 document.getElementById('m-ctl').addEventListener('click',function(){setCtl(ctl==='touch'?'btn':'touch');});
 setCtl(ctl);
 vEl.addEventListener('input',function(){vol=vEl.value/100;if(MG)MG.gain.value=vol;try{localStorage.setItem('galaga-vol',String(vol));}catch(e){}tone(660,.06,'triangle',.08);});

@@ -344,7 +344,7 @@ function kill(e,j){SFX.kill();puff(e.x,e.y,e.big?2.2:1);boom(e.x,e.y,'#ffd23f',e
 function collect(k){SFX.pu();tip=PU[k][2];tipT=1.6;
   if(k===1)tm.mu=12;else if(k===2)tm.ra=10;else if(k===3)vidas=Math.min(maxL(),vidas+1);else if(k===5){tot=Math.min(totemCap(),tot+1);sv();}
   else{eb=[];for(var j=ens.length-1;j>=0;j--){var e=ens[j];if(!e||(e.big&&e.inv>t))continue;e.hp-=e.big?Math.round(e.mhp*.05):1;if(e.hp<=0)kill(e,j);else boom(e.x,e.y,'#c77dff',8);}}}
-function shoot(e,v,dx){SFX.eshot();if(dx===undefined)dx=(sx-e.x)/Math.max(.3,(H-40-e.y)/v)*Math.min(.48,.18+.035*wi);eb.push({x:e.x,y:e.y+10,vx:dx,vy:v});}
+function shoot(e,v,dx){if(eb.length>=14)return;SFX.eshot();if(dx===undefined){var travel=Math.max(.45,(H-42-e.y)/v);dx=Math.max(-105,Math.min(105,(sx-e.x)/travel*.48));}eb.push({x:e.x,y:e.y+10,vx:dx,vy:v});}
 
 addEventListener('keydown',function(e){var k=M[e.key];
   if(k){K[k]=1;e.preventDefault();if(k==='f')act();}
@@ -466,8 +466,8 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       if(pat===7)pat=CYC[Math.floor(t/5)%7];
       if(!ctrl)e.y=90+Math.sin(t*(1.5+ph*.8))*(20+ph*25);
       if(!(e.inv>t)&&Math.random()<dt*Math.min(3,(1+Math.min(wi,7)*.4)*(1+ph*.35))*(wi<3?.62:1)*(wi===1?.72:1)*(pat===3||pat===4?.6:pat===6?.28:pat===5?.5:1))bossAtk(e,bv,ph,pat);}
-    else{var lowerLine=H-190,lowerCount=0;for(var liw=0;liw<ens.length;liw++){var other=ens[liw];if(other!==e&&!other.big&&other.y>=lowerLine)lowerCount++;}var nextY=e.y+e.vy*dt+Math.sin(t*3+e.ph)*14*dt;if(nextY>lowerLine&&lowerCount>=3)nextY=lowerLine;e.y=Math.min(H-75,nextY);
-      if(e.y<H/2&&Math.random()<dt*Math.max(rate*(e.v===3?3:1),e.v===3?.15:0))shoot(e,bv);}
+    else{var formationY=Math.min(H*.40,220),nextY=e.y+e.vy*dt+Math.sin(t*2.2+e.ph)*12*dt;e.y=Math.min(formationY,Math.max(48,nextY));
+      if(e.shT===undefined)e.shT=R(.7,2.1);e.shT-=dt;if(e.shT<=0&&eb.length<12){shoot(e,bv*(.82+Math.min(wi,8)*.025));e.shT=R(Math.max(1.8,3.4-wi*.07),Math.max(2.5,4.5-wi*.08));if(e.v===3&&eb.length<12){shoot(e,bv*.88,R(-48,48));e.shT+=.35;}}}
     var hw=e.big?50:24;
     if(e.x<hw){e.x=hw;e.vx=Math.abs(e.vx);}
     if(e.x>W-hw){e.x=W-hw;e.vx=-Math.abs(e.vx);}

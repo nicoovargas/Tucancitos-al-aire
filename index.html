@@ -609,7 +609,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
   }
     if(st==='mundo'){g.fillStyle='rgba(0,0,0,.62)';g.fillRect(0,0,W,H);txt('MUNDO '+(wi+1),H/2-34,20,'#ffd23f');txt(P.n,H/2+2,16,'#f6e7b4');txt(P.a,H/2+27,11,SH[0].col);}
   if(st==='pausa'){g.fillStyle='rgba(0,0,0,.55)';g.fillRect(0,0,W,H);txt('Pausa',H/2,26);}
-  if(st==='nivel'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);if(li===5){g.save();g.translate(W/2,H/2-70);g.rotate(-.12);g.translate(-W/2,-(H/2-70));txt('¡K.O.!',H/2-70,38,'#ff3b30');g.restore();}
+  if(st==='nivel'){g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,W,H);if(li===5){g.save();g.translate(W/2,H/2-70);g.rotate(-.12);g.translate(-W/2,-(H/2-70));txt('KNOCKOUT',H/2-70,28,'#ff3b30');g.restore();}
   txt(li===5?'¡Jefe derrotado!':'¡Nivel '+(li+1)+' completado!',H/2-10,16,'#ffd23f');txt('Bonus +'+((L()+1)*30),H/2+20,14);if(li===5){txt('¡Fragmento recuperado!',H/2+45,11,'#8fe3ee');wrap(bline(wi),40).slice(0,2).forEach(function(l,i){txt(l,H/2+70+i*16,10,'#f6e7b4');});}}
   if(st==='fin'){
     g.fillStyle='rgba(0,0,0,.65)';g.fillRect(0,0,W,H);

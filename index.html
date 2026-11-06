@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="game-version" content="1.0.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -30,6 +31,8 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 70p
 #worlds{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:55vh;overflow:auto}#worlds button{min-height:42px;font-size:12px}#worlds button:disabled{opacity:.4}.card section{display:flex;flex-direction:column;gap:10px}.shop-row{border:2px solid #5b4020;border-radius:9px;padding:8px;font:13px system-ui;background:#f7e9c5}.shop-row strong{display:block;font:15px MinecraftFive,Georgia,serif}.shop-row button{margin-top:6px;font:13px MinecraftFive,Georgia,serif;min-height:40px}
 .card label{font-size:14px;display:flex;flex-direction:column;gap:6px}
 #vol{width:100%;touch-action:pan-x;accent-color:#2f7d33}
+#v-home{position:relative;padding-bottom:18px}
+.game-version{position:absolute;right:0;bottom:0;color:#fff;font:10px system-ui,sans-serif;opacity:.9;text-shadow:1px 1px 2px #000;pointer-events:none}
 .note{font-size:12px;text-align:center;opacity:.8;margin:0}
 
 body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked #menu{visibility:hidden}
@@ -104,7 +107,7 @@ body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked
 <div id="leaderboard-screen" role="dialog" aria-modal="true" aria-label="Ranking de jugadores"><div class="leaderboard-card"><h2>🏆 RANKING</h2><p class="leaderboard-note" id="leaderboard-note">Clasificación por mundos desbloqueados</p><table class="leaderboard-table"><thead><tr><th>#</th><th>JUGADOR</th><th>MUNDOS</th></tr></thead><tbody id="leaderboard-body"><tr><td colspan="3">Cargando ranking…</td></tr></tbody></table><div class="leaderboard-actions"><button id="leaderboard-refresh" type="button">Actualizar</button><button id="leaderboard-close" type="button">Cerrar</button></div></div></div>
 <div id="profile-screen" role="dialog" aria-modal="true" aria-label="Perfil del jugador"><div class="profile-card"><h2 id="profile-title">Perfil</h2><p class="profile-sub" id="profile-since">Estadísticas de tu partida</p><div class="profile-stats"><div class="profile-stat"><b>MONEDAS</b><span id="ps-coins">0</span></div><div class="profile-stat"><b>RÉCORD</b><span id="ps-best">0</span></div><div class="profile-stat"><b>MUNDO DESBLOQUEADO</b><span id="ps-world">1</span></div><div class="profile-stat"><b>PARTIDA GUARDADA</b><span id="ps-save">Sin partida</span></div><div class="profile-stat"><b>NIVEL DE BALAS</b><span id="ps-bullets">1</span></div><div class="profile-stat"><b>TÓTEM</b><span id="ps-totem">1</span></div><div class="profile-stat"><b>ASPIRADORA</b><span id="ps-vacuum">0</span></div><div class="profile-stat"><b>MISILES</b><span id="ps-missiles">No</span></div></div><button id="profile-logout" type="button" style="display:none">Cerrar sesión</button><button id="profile-close" type="button">Volver al juego</button></div></div>
 <div id="menu"><div class="card" role="dialog" aria-label="Menú principal">
-<section id="v-home"><h2>Tucancitos al aire</h2><p class="note" id="home-info"></p><button id="home-play">Jugar</button><button id="home-shop">Tienda</button><button id="home-profile" style="display:none">Mi perfil</button><button id="home-ranking">🏆 Ranking</button></section>
+<section id="v-home"><h2>Tucancitos al aire</h2><p class="note" id="home-info"></p><button id="home-play">Jugar</button><button id="home-shop">Tienda</button><button id="home-profile" style="display:none">Mi perfil</button><button id="home-ranking">🏆 Ranking</button><span class="game-version" id="game-version-label">Versión 1.0.1</span></section>
 <section id="v-worlds" style="display:none"><h2>Elegir mundo</h2><div id="worlds"></div><p class="note" id="wnote"></p><button id="world-back">Volver</button></section>
 <section id="v-shop" style="display:none"><h2>Tienda</h2><p class="note" id="shop-coins"></p><div id="shop-items"></div><button id="shop-back">Volver</button></section>
 <section id="v-pause" style="display:none"><h2>Pausa</h2><button id="m-go">Continuar</button><button id="m-home">Menú principal</button><button id="m-shop">Tienda</button><button id="m-w">Cambiar de mundo</button><button id="m-ctl">Controles: Táctil</button><button id="m-snd">Efectos: Sí</button><button id="m-mus">Música: Sí</button><label>Volumen<input type="range" id="vol" min="0" max="100" value="70"></label></section>
@@ -763,6 +766,38 @@ var last=0;
 function loop(ts){var dt=Math.min(.05,(ts-last)/1000||0);last=ts;update(dt);draw();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 })();
+
+/* Control de actualizaciones del juego */
+(()=>{
+ const versionMeta=document.querySelector('meta[name="game-version"]');
+ const currentVersion=versionMeta?.content||'1.0.1';
+ const label=document.getElementById('game-version-label');
+ if(label) label.textContent='Versión '+currentVersion;
+ let checking=false;
+ async function checkGameVersion(){
+  if(checking||document.visibilityState==='hidden')return;
+  checking=true;
+  try{
+   const url=new URL(location.href);
+   url.searchParams.set('_version_check',String(Date.now()));
+   const response=await fetch(url.href,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+   if(!response.ok)return;
+   const html=await response.text();
+   const match=html.match(/<meta\\s+name=["']game-version["']\\s+content=["']([^"']+)["']/i);
+   const latestVersion=match?.[1];
+   if(latestVersion&&latestVersion!==currentVersion){
+    location.reload();
+   }
+  }catch(error){
+   /* Si no hay conexión, se conserva la versión actual y se reintenta después. */
+  }finally{checking=false;}
+ }
+ setTimeout(checkGameVersion,5000);
+ setInterval(checkGameVersion,60000);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkGameVersion();});
+ window.addEventListener('focus',checkGameVersion);
+})();
+
 </script>
 </body>
 </html>

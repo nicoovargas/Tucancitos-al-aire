@@ -466,7 +466,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       if(pat===7)pat=CYC[Math.floor(t/5)%7];
       if(!ctrl)e.y=90+Math.sin(t*(1.5+ph*.8))*(20+ph*25);
       if(!(e.inv>t)&&Math.random()<dt*Math.min(3,(1+Math.min(wi,7)*.4)*(1+ph*.35))*(wi<3?.62:1)*(wi===1?.72:1)*(pat===3||pat===4?.6:pat===6?.28:pat===5?.5:1))bossAtk(e,bv,ph,pat);}
-    else{var formationY=Math.min(H*.40,220),nextY=e.y+e.vy*dt+Math.sin(t*2.2+e.ph)*12*dt;e.y=Math.min(formationY,Math.max(48,nextY));
+    else{var formationY=Math.min(H*.40,220);if(e.lane===undefined)e.lane=Math.floor(R(0,3));var laneY=formationY+(e.lane-1)*52;e.y+=(laneY-e.y)*Math.min(1,dt*1.25)+Math.sin(t*2.2+e.ph)*10*dt;
       if(e.shT===undefined)e.shT=R(.7,2.1);e.shT-=dt;if(e.shT<=0&&eb.length<12){shoot(e,bv*(.82+Math.min(wi,8)*.025));e.shT=R(Math.max(1.8,3.4-wi*.07),Math.max(2.5,4.5-wi*.08));if(e.v===3&&eb.length<12){shoot(e,bv*.88,R(-48,48));e.shT+=.35;}}}
     var hw=e.big?50:24;
     if(e.x<hw){e.x=hw;e.vx=Math.abs(e.vx);}

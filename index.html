@@ -4,18 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Rye&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:MinecraftFive;src:url('assets/minecraft-five-bold.woff2') format('woff2');font-weight:normal;font-style:normal;font-display:swap}
 :root{--bg:#eadcb8;--fg:#2a1a0a;--btn:#2f7d33;--btnfg:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b120a;--fg:#f0d9a0;--btn:#4caf50;--btnfg:#06150a}}
 :root[data-theme="dark"]{--bg:#1b120a;--fg:#f0d9a0;--btn:#4caf50;--btnfg:#06150a}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;user-select:none;-webkit-user-select:none;overflow:hidden}
+body{background:var(--bg);color:var(--fg);font-family:MinecraftFive,system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;user-select:none;-webkit-user-select:none;overflow:hidden}
 canvas{touch-action:none;width:min(calc(100% - 14px),calc((100dvh - 160px) * .625));aspect-ratio:400/640;border-radius:6px;outline:4px solid #1a0f08;background:#0b2a14}
 .pad{display:flex;justify-content:center;gap:10px;width:100%;padding:0 8px;box-sizing:border-box}
-button{flex:1;min-height:52px;border:3px solid #1a0f08;border-radius:12px;background:#f0d9a0;color:#1a0f08;box-shadow:0 3px 0 #1a0f08;font:400 17px Bevan,Georgia,serif}
+button{flex:1;min-height:52px;border:3px solid #1a0f08;border-radius:12px;background:#f0d9a0;color:#1a0f08;box-shadow:0 3px 0 #1a0f08;font:400 17px MinecraftFive,Georgia,serif}
 button:active{filter:brightness(.8)}
 body.touch .pad{display:none}
 body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 100px) * .625))}
@@ -25,10 +24,10 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 100
 #mb i{display:inline-block;width:4px;height:12px;background:#1a0f08;margin-right:3px;vertical-align:-1px}
 #menu{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,10,5,.82);z-index:10;padding:16px;box-sizing:border-box}
 #menu.on{display:flex}
-.card{background:#eadcb8;color:#1a0f08;border:4px solid #1a0f08;border-radius:16px;box-shadow:0 5px 0 #1a0f08;padding:18px;width:min(100%,340px);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:10px;font-family:Bevan,Georgia,serif}
-.card h2{margin:0 0 4px;text-align:center;font:400 26px Rye,Bevan,Georgia,serif}
+.card{background:#eadcb8;color:#1a0f08;border:4px solid #1a0f08;border-radius:16px;box-shadow:0 5px 0 #1a0f08;padding:18px;width:min(100%,340px);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:10px;font-family:MinecraftFive,Georgia,serif}
+.card h2{margin:0 0 4px;text-align:center;font:400 26px MinecraftFive,MinecraftFive,Georgia,serif}
 .card button{flex:none;width:100%}
-#worlds,#worlds-pause{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:45vh;overflow:auto}#worlds button,#worlds-pause button{min-height:42px;font-size:12px}#worlds button:disabled,#worlds-pause button:disabled{opacity:.4}.card section{display:flex;flex-direction:column;gap:10px}.shop-row{border:2px solid #5b4020;border-radius:9px;padding:8px;font:13px system-ui;background:#f7e9c5}.shop-row strong{display:block;font:15px Bevan,Georgia,serif}.shop-row button{margin-top:6px;font:13px Bevan,Georgia,serif;min-height:40px}
+#worlds,#worlds-pause{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:45vh;overflow:auto}#worlds button,#worlds-pause button{min-height:42px;font-size:12px}#worlds button:disabled,#worlds-pause button:disabled{opacity:.4}.card section{display:flex;flex-direction:column;gap:10px}.shop-row{border:2px solid #5b4020;border-radius:9px;padding:8px;font:13px system-ui;background:#f7e9c5}.shop-row strong{display:block;font:15px MinecraftFive,Georgia,serif}.shop-row button{margin-top:6px;font:13px MinecraftFive,Georgia,serif;min-height:40px}
 .card label{font-size:14px;display:flex;flex-direction:column;gap:6px}
 #vol{width:100%;touch-action:pan-x;accent-color:#2f7d33}
 .note{font-size:12px;text-align:center;opacity:.8;margin:0}
@@ -50,8 +49,8 @@ body.touch canvas,body.touch .top{width:min(calc(100% - 14px),calc((100dvh - 100
 </div></div>
 <script>
 (function(){
-try{document.fonts.load('20px Bevan');document.fonts.load('20px Rye');}catch(e){}
-var FF='Bevan';
+try{document.fonts.load('20px MinecraftFive');document.fonts.load('20px MinecraftFive');}catch(e){}
+var FF='MinecraftFive';
 var W=400,H=640,cv=document.getElementById('c'),g=cv.getContext('2d');
 cv.width=W;cv.height=H;
 var LO=document.createElement('canvas');LO.width=W/2;LO.height=H/2;var gl=LO.getContext('2d'),gm=g;
@@ -582,11 +581,11 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
   g.globalAlpha=1;
   endScene();drawBoss();
   if(st!=='inicio'){
-    g.fillStyle='rgba(20,10,5,.6)';g.fillRect(0,0,W,48);g.textAlign='left';g.fillStyle='#f0d9a0';g.font='14px Bevan,Georgia,serif';
+    g.fillStyle='rgba(20,10,5,.6)';g.fillRect(0,0,W,48);g.textAlign='left';g.fillStyle='#f0d9a0';g.font='14px MinecraftFive,Georgia,serif';
     lt('Mundo '+(wi+1)+' Nivel '+(li+1),10,22,14,'#f6e7b4','left');
     hearts();
     g.textAlign='right';g.fillStyle='#4dd0e1';lt('Puntos '+pts,W-10,22,14,'#8fe3ee','right');lt('¢ '+profile.coins,W/2,41,12,'#ffd23f','center');lt('¢ '+profile.coins,W-10,41,12,'#ffd23f','right');
-    var nr=best>startBest;g.font='12px Bevan,Georgia,serif';g.fillStyle=nr?'#ffd23f':'#bbb';
+    var nr=best>startBest;g.font='12px MinecraftFive,Georgia,serif';g.fillStyle=nr?'#ffd23f':'#bbb';
     lt((nr?'¡Nuevo récord! ':'Récord ')+best,W-10,41,12,nr?'#ffd23f':'#d9c9a0','right');
     g.textAlign='left';g.fillStyle='#4dd0e1';var ef=[];if(tm.mu>0)ef.push('Balas+ '+Math.ceil(tm.mu));if(tm.ra>0)ef.push('Rápido '+Math.ceil(tm.ra));if(profile.missiles)ef.push('Misiles');
     lt(ef.join('  '),10,41,12,'#8fe3ee','left');
@@ -597,7 +596,7 @@ function draw(){g=gl;var so=shk>0?shk*14:0;g.setTransform(.5,0,0,.5,(Math.random
     if(lvT>0&&li===5&&st==='jugando')txt(bname(wi),H/2+14,22,'#ff8a80');
   }
   if(st==='inicio'){
-    FF='Rye';txt('Tucansitos al aire',205,34,'#ffd23f');FF='Bevan';txt('★  ★  ★',236,16,'#f0d9a0');
+    FF='MinecraftFive';txt('Tucansitos al aire',205,34,'#ffd23f');FF='MinecraftFive';txt('★  ★  ★',236,16,'#f0d9a0');
     bird({x:W/2-10,y:275,vx:1,hp:1,ph:0},WO[0]);
     txt('Mundos infinitos y un jefe único en cada uno',322,14);
     txt('Desde la Costa las aves disparan: esquiva',346,14,'#ff6b6b');

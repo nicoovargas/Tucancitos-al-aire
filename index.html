@@ -469,7 +469,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
   cd-=dt;inv-=dt;tipT-=dt;spT-=dt;lvT-=dt;phT-=dt;
   for(var q in tm)if(q!=='mi')tm[q]=Math.max(0,tm[q]-dt);
   if(spT<=0){spT=R(8,13);drop(R(30,W-30),-10,1);}
-   if(wi>=4){ambushT-=dt;if(ambushT<=0&&!ens.some(function(e){return e.dive;})){var ax=R(35,W-35);ens.push({x:ax,y:-34,tx:sx,ty:H+70,vx:0,vy:0,hp:999999,ph:R(0,6),v:0,tf:true,dive:1});ambushT=R(18,26);SFX.boss();}}
+   if(wi>=4&&ens.some(function(e){return !e.dive;})){ambushT-=dt;if(ambushT<=0&&!ens.some(function(e){return e.dive;})){var ax=R(35,W-35);ens.push({x:ax,y:-34,tx:sx,ty:H+70,vx:0,vy:0,hp:999999,ph:R(0,6),v:0,tf:true,dive:1});ambushT=R(18,26);SFX.boss();}}
   /* Los tótems caen del cielo por separado; su frecuencia aumenta gradualmente. */
   if(st==='jugando'&&tot<totemCap()&&!pu.some(function(p){return p.k===5;})){totT-=dt;if(totT<=0){pu.push({x:R(30,W-30),y:-24,v:190,k:5});totT=(wi===8&&li===5)?R(8,11):Math.max(13,27-wi*1.45);}}
   pu.forEach(function(p){p.y+=p.v*dt;});
@@ -504,6 +504,8 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
     if(e.y>H-70){hurt(1);boom(e.x,H-70,'#ff8a1f');e.y=30;e.x=R(30,W-30);}
   });
   for(var q=ens.length-1;q>=0;q--)if(ens[q].kx){if(!ens[q].dive)boom(ens[q].x,ens[q].y,'#ff3b30',24);ens.splice(q,1);}
+   /* El tucán especial no bloquea el cierre cuando ya no quedan enemigos normales. */
+   if(!ens.some(function(e){return !e.dive;})){ens=ens.filter(function(e){return !e.dive;});}
    if(grapple)return;
   dec.forEach(function(d){d.t+=dt;if(!d.f&&d.t>.9){d.f=1;var o={x:d.x,y:d.y};for(var k=-1;k<=1;k++)shoot(o,bv,k*80);}});dec=dec.filter(function(d){return d.t<1.6;});
   for(var mi=mis.length-1;mi>=0;mi--){var m=mis[mi],ti=-1,td=1e9;for(var ei=0;ei<ens.length;ei++){var te=ens[ei];if(te.dive||(te.big&&te.inv>t))continue;var ex=te.x-m.x,ey=te.y-m.y,dd=ex*ex+ey*ey;if(dd<td){td=dd;ti=ei;}}if(ti<0){mis.splice(mi,1);continue;}var tar=ens[ti],dxm=tar.x-m.x,dym=tar.y-m.y,dm=Math.sqrt(dxm*dxm+dym*dym)||1,ms=300,blend=Math.min(1,dt*5);m.vx+=(dxm/dm*ms-m.vx)*blend;m.vy+=(dym/dm*ms-m.vy)*blend;m.x+=m.vx*dt;m.y+=m.vy*dt;if(dm<=(tar.big?34:22)){mis.splice(mi,1);var bx=tar.x,by=tar.y;SFX.hit();boom(bx,by,'#ff7043',22);spark(bx,by,1.8);shk=Math.max(shk,.12);for(var ej=ens.length-1;ej>=0;ej--){var hit=ens[ej],hx=hit.x-bx,hy=hit.y-by;if(hx*hx+hy*hy<48*48&&!(hit.big&&hit.inv>t)){hit.hp-=1;hit.fl=t+.14;if(hit.hp<=0)kill(hit,ej);else{boom(hit.x,hit.y,'#ff9b54',10);gain(5);}}}}else if(m.y<-20||m.x<-20||m.x>W+20)mis.splice(mi,1);}

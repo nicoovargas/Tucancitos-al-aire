@@ -44,9 +44,19 @@ body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked
 .auth-card .auth-help{opacity:.8}
 .player-profile{display:flex;align-items:center;gap:7px;position:relative;margin-right:auto;min-width:0;color:#fff;font:13px MinecraftFive,Georgia,serif;text-shadow:1px 2px #1a0f08}
 #profile-avatar{flex:none;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;font-size:18px}
-#profile-name{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#profile-name{display:block;flex:0 1 150px;min-width:0;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:clip;font-size:13px;line-height:1.15;cursor:pointer}
 .profile-menu{position:absolute;z-index:30;top:44px;left:0;width:150px;padding:8px;background:#eadcb8;border:3px solid #1a0f08;border-radius:10px;box-shadow:0 3px #1a0f08}
 .profile-menu button{width:100%;min-height:40px;font-size:12px}
+#profile-screen{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(10,5,2,.82);font-family:MinecraftFive,Georgia,serif}
+#profile-screen.on{display:flex}
+.profile-card{width:min(100%,360px);max-height:min(88dvh,620px);overflow:auto;box-sizing:border-box;background:#eadcb8;color:#1a0f08;border:4px solid #1a0f08;border-radius:15px;padding:16px;box-shadow:0 5px #1a0f08;display:flex;flex-direction:column;gap:10px}
+.profile-card h2{margin:0;text-align:center;font-size:21px}
+.profile-sub{margin:0;text-align:center;font:12px system-ui;color:#5b4020;overflow-wrap:anywhere}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.profile-stat{background:#f7e9c5;border:2px solid #5b4020;border-radius:9px;padding:9px;min-width:0}
+.profile-stat b{display:block;font:11px system-ui;color:#76552e;margin-bottom:4px}
+.profile-stat span{display:block;font:15px MinecraftFive,Georgia,serif;overflow-wrap:anywhere}
+.profile-card button{flex:none;width:100%;min-height:42px;font-size:13px}
 
 </style>
 </head>
@@ -66,7 +76,7 @@ body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked
 <div id="player-profile" class="player-profile" style="display:none">
 <button id="profile-avatar" type="button" aria-label="Perfil">●</button>
 <span id="profile-name"></span>
-<div id="profile-menu" class="profile-menu" style="display:none"><button id="profile-logout" type="button">Cerrar sesión</button></div>
+<div id="profile-menu" class="profile-menu" style="display:none"><button id="profile-open" type="button">Ver perfil</button><button id="profile-logout" type="button">Cerrar sesión</button></div>
 </div>
 <button id="mb" aria-label="Pausa y menú"><i></i><i></i> Pausa</button>
 </div>
@@ -76,6 +86,7 @@ body.auth-locked .top,body.auth-locked #c,body.auth-locked .pad,body.auth-locked
 <button id="f" data-k="f">Disparar</button>
 <button data-k="r" aria-label="Derecha">→</button>
 </div>
+<div id="profile-screen" role="dialog" aria-modal="true" aria-label="Perfil del jugador"><div class="profile-card"><h2 id="profile-title">Perfil</h2><p class="profile-sub" id="profile-since">Estadísticas de tu partida</p><div class="profile-stats"><div class="profile-stat"><b>MONEDAS</b><span id="ps-coins">0</span></div><div class="profile-stat"><b>RÉCORD</b><span id="ps-best">0</span></div><div class="profile-stat"><b>MUNDO DESBLOQUEADO</b><span id="ps-world">1</span></div><div class="profile-stat"><b>PARTIDA GUARDADA</b><span id="ps-save">Sin partida</span></div><div class="profile-stat"><b>NIVEL DE BALAS</b><span id="ps-bullets">1</span></div><div class="profile-stat"><b>TÓTEM</b><span id="ps-totem">1</span></div><div class="profile-stat"><b>ASPIRADORA</b><span id="ps-vacuum">0</span></div><div class="profile-stat"><b>MISILES</b><span id="ps-missiles">No</span></div></div><button id="profile-close" type="button">Volver al juego</button></div></div>
 <div id="menu"><div class="card" role="dialog" aria-label="Menú principal">
 <section id="v-home"><h2>Tucancitos al aire</h2><p class="note" id="home-info"></p><button id="home-play">Jugar</button><button id="home-shop">Tienda</button></section>
 <section id="v-worlds" style="display:none"><h2>Elegir mundo</h2><div id="worlds"></div><p class="note" id="wnote"></p><button id="world-back">Volver</button></section>
@@ -173,14 +184,24 @@ function cloudProfile(){return {coins:profile.coins,bullets:profile.bullets,bull
 async function authFetch(path,body){var headers={'Content-Type':'application/json'};if(authToken)headers.Authorization='Bearer '+authToken;var res=await fetch(AUTH_API+path,{method:body?'POST':'GET',headers:headers,body:body?JSON.stringify(body):undefined});var data={};try{data=await res.json();}catch(e){}if(!res.ok)throw new Error(data.error||'No se pudo conectar con el servidor.');return data;}
 function authMsg(msg,bad){var el=document.getElementById('auth-message');el.textContent=msg;el.style.color=bad?'#a32222':'#1a0f08';}
 function applyCloudProfile(p){if(!p)return;profile.coins=Math.max(0,+p.coins||0);profile.bullets=Math.max(1,Math.min(6,+p.bullets||1));profile.bulletsOwned=Math.max(profile.bullets,Math.min(6,+p.bulletsOwned||profile.bullets));profile.totemLevel=Math.max(1,Math.min(3,+p.totem||1));profile.totemOwned=Math.max(profile.totemLevel,Math.min(3,+p.totemOwned||profile.totemLevel));profile.vacuumLevel=Math.max(0,Math.min(3,+p.vacuum||0));profile.vacuumOwned=Math.max(profile.vacuumLevel,Math.min(3,+p.vacuumOwned||profile.vacuumLevel));profile.missilesOwned=!!p.missilesOwned||!!p.missiles;profile.missiles=!!p.missiles;profile.progressionVersion=3;if(Number.isFinite(+p.best))best=Math.max(best,+p.best);if(Number.isFinite(+p.maxW))maxW=Math.max(maxW,+p.maxW);if(p.save&&typeof p.save==='object')save=p.save;}
-function profileUI(){var p=document.getElementById('player-profile');p.style.display=authToken?'flex':'none';document.getElementById('profile-name').textContent=authUsername;refreshHome();}
+function fitProfileName(){var el=document.getElementById('profile-name');if(!el)return;var size=13;el.style.fontSize=size+'px';while(size>7&&el.scrollWidth>el.clientWidth){size-=.5;el.style.fontSize=size+'px';}}
+function updateProfileStats(){var put=function(id,value){var el=document.getElementById(id);if(el)el.textContent=String(value);};put('profile-title',authUsername||'Perfil');put('ps-coins',profile.coins.toLocaleString('es-MX'));put('ps-best',best.toLocaleString('es-MX'));put('ps-world',String(Math.max(1,maxW+1)));put('ps-save',save?'Mundo '+(save.wi+1)+' · Nivel '+(save.li+1):'Sin partida guardada');put('ps-bullets',String(profile.bullets)+' / 6');put('ps-totem','Nivel '+profile.totemLevel);put('ps-vacuum',profile.vacuumLevel?'Nivel '+profile.vacuumLevel:'No adquirido');put('ps-missiles',profile.missilesOwned?'Adquiridos':'No adquiridos');}
+function openProfile(){updateProfileStats();document.getElementById('profile-menu').style.display='none';document.getElementById('profile-screen').classList.add('on');}
+function closeProfile(){document.getElementById('profile-screen').classList.remove('on');}
+function profileUI(){var p=document.getElementById('player-profile');p.style.display=authToken?'flex':'none';var n=document.getElementById('profile-name');n.textContent=authUsername;fitProfileName();refreshHome();updateProfileStats();}
 function queueCloudSave(){if(!authToken)return;if(cloudSaveTimer)clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(async function(){if(cloudBusy)return;cloudBusy=true;try{await authFetch('/api/save',{profile:cloudProfile()});}catch(e){console.warn('Cloud save:',e.message);}finally{cloudBusy=false;}},1200);}
 async function completeAuth(data,isNew){authToken=data.token;authUsername=data.username;try{localStorage.setItem('tucancitos-auth-token',authToken);localStorage.setItem('tucancitos-auth-user',authUsername);}catch(e){}try{if(isNew){await authFetch('/api/save',{profile:cloudProfile()});}else{var me=await authFetch('/api/me');applyCloudProfile(me.profile);sv();}}catch(e){authMsg(e.message,true);return;}profileUI();document.getElementById('profile-menu').style.display='none';document.getElementById('auth-screen').hidden=true;document.body.classList.remove('auth-locked');authMsg('');}
 async function authAction(kind){var u=document.getElementById('auth-username').value.trim(),p=document.getElementById('auth-password').value;if(!u||!p){authMsg('Escribe tu usuario y contraseña.',true);return;}var buttons=['auth-login','auth-register'];buttons.forEach(function(id){document.getElementById(id).disabled=true;});authMsg(kind==='register'?'Creando cuenta…':'Iniciando sesión…');try{var data=await authFetch(kind==='register'?'/api/register':'/api/login',{username:u,password:p});await completeAuth(data,kind==='register');}catch(e){authMsg(e.message,true);}finally{buttons.forEach(function(id){document.getElementById(id).disabled=false;});}}
 document.getElementById('auth-login').addEventListener('click',function(){authAction('login');});
 document.getElementById('auth-register').addEventListener('click',function(){authAction('register');});
 document.getElementById('auth-password').addEventListener('keydown',function(e){if(e.key==='Enter')authAction('login');});
-document.getElementById('profile-avatar').addEventListener('click',function(){var m=document.getElementById('profile-menu');m.style.display=m.style.display==='none'?'block':'none';});
+function toggleProfileMenu(){var m=document.getElementById('profile-menu');m.style.display=m.style.display==='none'?'block':'none';}
+document.getElementById('profile-avatar').addEventListener('click',toggleProfileMenu);
+document.getElementById('profile-name').addEventListener('click',toggleProfileMenu);
+document.getElementById('profile-open').addEventListener('click',openProfile);
+document.getElementById('profile-close').addEventListener('click',closeProfile);
+document.getElementById('profile-screen').addEventListener('click',function(e){if(e.target===this)closeProfile();});
+window.addEventListener('resize',fitProfileName);
 document.getElementById('profile-logout').addEventListener('click',function(){try{localStorage.removeItem('tucancitos-auth-token');localStorage.removeItem('tucancitos-auth-user');}catch(e){}authToken='';authUsername='';document.getElementById('profile-menu').style.display='none';document.getElementById('auth-screen').hidden=false;document.body.classList.add('auth-locked');document.getElementById('auth-password').value='';authMsg('Sesión cerrada. Inicia sesión para continuar.');profileUI();});
 async function restoreSession(){if(!authToken){document.getElementById('auth-screen').hidden=false;return;}try{var me=await authFetch('/api/me');authUsername=me.username;applyCloudProfile(me.profile);try{localStorage.setItem('tucancitos-auth-user',authUsername);}catch(e){}sv();profileUI();document.getElementById('auth-screen').hidden=true;document.body.classList.remove('auth-locked');}catch(e){authToken='';authUsername='';try{localStorage.removeItem('tucancitos-auth-token');localStorage.removeItem('tucancitos-auth-user');}catch(x){}document.getElementById('auth-screen').hidden=false;authMsg('Tu sesión terminó. Inicia sesión de nuevo.',true);}}
 function sv(){try{localStorage.setItem(KEY,JSON.stringify({best:best,save:save,maxW:maxW}));localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));}catch(e){}queueCloudSave();}

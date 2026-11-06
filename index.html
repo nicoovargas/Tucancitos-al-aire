@@ -332,7 +332,7 @@ function newLevel(){
 function start(cont,w0){
   if(cont&&save){wi=save.wi;li=save.li;vidas=Math.min(maxL(),save.vidas);pts=save.pts;tot=Math.min(totemCap(),save.tot||0);nx=save.nx||0;nextLife=save.nl||(Math.floor(pts/300)+1)*300;}
   else{wi=w0||0;li=0;vidas=3;tot=0;nx=0;pts=0;nextLife=300;save=null;sv();}
-  startBest=best;win=false;sx=W/2;ens=[];pu=[];coinFly=[];mis=[];tm.sh=tm.mu=tm.ra=tm.mi=0;miCd=0;spT=8;st='mundo';msgT=2.4;if(!storySeen){storySeen=true;try{localStorage.setItem('galaga-story','1');}catch(e){}st='cine';cineK=1;cineT=0;}}
+  startBest=best;win=false;sx=W/2;ens=[];pu=[];coinFly=[];mis=[];tm.sh=tm.mu=tm.ra=tm.mi=0;miCd=0;spT=8;st='mundo';msgT=2.4;if(!storySeen){storySeen=true;try{localStorage.setItem('galaga-story','1');}catch(e){}sv();st='cine';cineK=1;cineT=0;}}
 function terminar(w){win=w;st='fin';save=null;finT=4;sv();if(w)SFX.win();else SFX.over();}
 function act(){if(menuOn)return;musicStart();if(st==='cine'){skipCine();return;}if(st==='inicio'||st==='fin')start(true);else if(st==='pausa')st='jugando';}
 function pausa(){if(menuOn)menuClose();else menuOpen();}
@@ -617,7 +617,7 @@ function drawDecor(P){g.fillStyle=mix(P.bg[1],'#ffffff',.35);ds.forEach(function
 var cineK=1,cineT=0,CB=[[0,4.5,9,13.5,18],[0,5,10,15]];
 var CC=[['El cielo era de los tucanes...','Hasta que el Gran Cuervo llegó...','...y rompió el Tótem del Sol.','Solo tú puedes recuperar los fragmentos. ¡Vuela, piloto!'],['El Tótem del Sol volvió a brillar...','Pero su luz abrió grietas en el cielo.','Nacieron mundos nuevos, uno distinto tras otro. ¡Que nunca se acaben los cielos!']];
 try{epiSeen=localStorage.getItem('galaga-epi')==='1';}catch(e){}
-function endCine(){if(cineK===2){epiSeen=true;try{localStorage.setItem('galaga-epi','1');}catch(e){}}st='mundo';msgT=2.4;}
+function endCine(){if(cineK===2){epiSeen=true;try{localStorage.setItem('galaga-epi','1');}catch(e){}sv();}st='mundo';msgT=2.4;}
 function skipCine(){var b=CB[cineK-1],i=0;while(i<b.length-2&&cineT>=b[i+1])i++;if(i>=b.length-2)endCine();else cineT=b[i+1];}
 function bigTotem(x,y,s,T){g.save();g.translate(x,y-30);g.rotate(T*.25);g.fillStyle='rgba(255,215,90,.22)';for(var i=0;i<8;i++){g.rotate(Math.PI/4);g.fillRect(-5,-190,10,110);}g.restore();
   g.fillStyle='rgba(255,230,120,'+(.14+.06*Math.sin(T*3))+')';g.fillRect(x-90*s/1.6,y-100*s/1.6,180*s/1.6,200*s/1.6);

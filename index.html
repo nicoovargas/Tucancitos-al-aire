@@ -456,7 +456,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
     msgT-=dt;
     if(msgT<=0){
       /* Los power-ups no recogidos no se conceden automáticamente. */
-      if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(maxL(),Math.max(vidas+1,maxL()));}
+      if(st==='nivel'){li++;if(li>5){li=0;wi++;vidas=Math.min(maxL(),Math.max(vidas+1,maxL()));}if(wi>maxW)maxW=wi;save={wi:wi,li:li,vidas:vidas,pts:pts,nl:nextLife,tot:tot,nx:nx};sv();
         }
       if(li===0&&st==='nivel'){if(wi===8&&!epiSeen){st='cine';cineK=2;cineT=0;}else{st='mundo';msgT=2.4;}}else{newLevel();st='jugando';}
     }

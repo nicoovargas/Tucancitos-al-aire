@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="game-version" content="1.0.4">
+<meta name="game-version" content="1.0.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -158,7 +158,7 @@ function tapTxt(){return ctl==='touch'?'la pantalla':'Disparar';}
 function lblCtl(){document.getElementById('m-ctl').textContent='Controles: '+(ctl==='touch'?'T\u00e1ctil':'Botones');}
 function setCtl(v){ctl=v;try{localStorage.setItem('galaga-ctl',v==='btn'?'btn':'touch');}catch(e){}try{document.body.classList.toggle('touch',ctl==='touch');}catch(e){}lblCtl();}
 var mG=null,mus=true,mTimer=null,mNext=0,mStep=0,mTheme='',MT=null,NB=null;
-var levelTrack=new Audio('assets/Level%20Clear.mp3'),trackReady=false,trackFailed=false,trackStage=-1;
+var levelTrack=new Audio('assets/Level%2520Clear.mp3'),trackReady=false,trackFailed=false,trackStage=-1;
 var trackCuts=[0,20.66,41.32,61.99,82.65,103.31,123.97];
 levelTrack.preload='auto';levelTrack.loop=false;levelTrack.volume=vol*.55;
 try{levelTrack.preservesPitch=false;levelTrack.webkitPreservesPitch=false;}catch(e){}

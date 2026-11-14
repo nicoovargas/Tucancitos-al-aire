@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="game-version" content="1.0.9">
+<meta name="game-version" content="1.1.0">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -424,10 +424,23 @@ function grappleDuration(){return wi>=9?1.5:2.25;}
  function resolveGrapple(){if(!grapple||grapple.frozen!==null)return;var p=grapplePointer(),hit=Math.abs(p-grapple.target)<=.052;grapple.frozen=p;if(!hit){if(tot>0){tot--;playTotemSnd();tip='¡FALLASTE! PERDISTE UN TÓTEM';}else{vidas=Math.max(0,vidas-1);SFX.hurt();tip='¡FALLASTE! PERDISTE UNA VIDA';}sv();tipT=1.8;if(vidas<=0){grapple=null;terminar(false);return;}setTimeout(function(){if(grapple&&grapple.frozen!==null){grapple=null;K.l=K.r=K.f=0;drag=null;tgt=null;}},1100);return;}shield=1;sv();tip='¡ESCUDO CONSEGUIDO!';tipT=2.2;SFX.hit();spark(sx,H-40,1.8);boom(sx,H-40,'#8fe3ee',18);setTimeout(function(){if(grapple&&grapple.frozen!==null){grapple=null;K.l=K.r=K.f=0;drag=null;tgt=null;inv=1.35;}},1100);}
  function shoot(e,v,dx){if(eb.length>=14)return;SFX.eshot();if(dx===undefined){var travel=Math.max(.45,(H-42-e.y)/v);dx=Math.max(-105,Math.min(105,(sx-e.x)/travel*.48));}eb.push({x:e.x,y:e.y+10,vx:dx,vy:v});}
 
-addEventListener('keydown',function(e){if(grapple&&(e.key===' '||e.key==='Enter')){e.preventDefault();resolveGrapple();return;}var k=M[e.key];
+function keyboardInputBlocked(e){
+  var target=e&&e.target,tag=target&&target.tagName?target.tagName.toLowerCase():'';
+  if(tag==='input'||tag==='textarea'||tag==='select'||(target&&target.isContentEditable))return true;
+  var auth=document.getElementById('auth-screen');
+  return !!(auth&&!auth.hidden);
+}
+addEventListener('keydown',function(e){
+  if(keyboardInputBlocked(e))return;
+  if(grapple&&(e.key===' '||e.key==='Enter')){e.preventDefault();resolveGrapple();return;}
+  var k=M[e.key];
   if(k){K[k]=1;e.preventDefault();if(k==='f')act();}
-  if(e.key==='p'||e.key==='P'||e.key==='Escape')pausa();if(e.key==='m'||e.key==='M')mute();});
-addEventListener('keyup',function(e){var k=M[e.key];if(k)K[k]=0;});
+  if(e.key==='p'||e.key==='P'||e.key==='Escape')pausa();if(e.key==='m'||e.key==='M')mute();
+});
+addEventListener('keyup',function(e){
+  var k=M[e.key];
+  if(k)K[k]=0;
+});
 document.querySelectorAll('[data-k]').forEach(function(b){
   var k=b.dataset.k;
   b.addEventListener('pointerdown',function(e){e.preventDefault();if(grapple){resolveGrapple();return;}K[k]=1;ac();musicStart();if(k==='f')act();});

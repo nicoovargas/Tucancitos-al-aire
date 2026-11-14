@@ -167,7 +167,7 @@ levelTrack.addEventListener('loadedmetadata',function(){
 });
 levelTrack.addEventListener('canplay',function(){
   trackReady=true;
-  if(mus&&(st==='jugando'||st==='nivel'||st==='mundo'||st==='pausa'))syncLevelTrack(false);
+  if(mus&&(st==='jugando'||st==='nivel'||st==='mundo'))syncLevelTrack(false);
 });
 levelTrack.addEventListener('error',function(){trackFailed=true;trackReady=false;});
 levelTrack.addEventListener('ended',function(){

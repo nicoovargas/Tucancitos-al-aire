@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="game-version" content="1.0.5">
+<meta name="game-version" content="1.0.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -159,26 +159,43 @@ function lblCtl(){document.getElementById('m-ctl').textContent='Controles: '+(ct
 function setCtl(v){ctl=v;try{localStorage.setItem('galaga-ctl',v==='btn'?'btn':'touch');}catch(e){}try{document.body.classList.toggle('touch',ctl==='touch');}catch(e){}lblCtl();}
 var mG=null,mus=true,mTimer=null,mNext=0,mStep=0,mTheme='',MT=null,NB=null;
 var levelTrack=new Audio('assets/Level%2520Clear.mp3'),trackReady=false,trackFailed=false,trackStage=-1;
-var trackCuts=[0,20.66,41.32,61.99,82.65,103.31,123.97];
+var trackCuts=[0,0,0,0,0,0,0];
 levelTrack.preload='auto';levelTrack.loop=false;levelTrack.volume=vol*.55;
 try{levelTrack.preservesPitch=false;levelTrack.webkitPreservesPitch=false;}catch(e){}
-levelTrack.addEventListener('loadedmetadata',function(){trackReady=true;if(mus&&st==='jugando')syncLevelTrack(true);});
-levelTrack.addEventListener('canplay',function(){trackReady=true;if(mus&&st==='jugando')syncLevelTrack(true);});
+function buildTrackCuts(){
+  var duration=levelTrack.duration;
+  if(!isFinite(duration)||duration<=0)return;
+  for(var i=0;i<=6;i++)trackCuts[i]=duration*i/6;
+}
+levelTrack.addEventListener('loadedmetadata',function(){
+  trackReady=true;buildTrackCuts();
+  if(mus&&!menuOn&&(st==='jugando'||st==='nivel'||st==='mundo'))syncLevelTrack(false);
+});
+levelTrack.addEventListener('canplay',function(){
+  trackReady=true;buildTrackCuts();
+  if(mus&&!menuOn&&(st==='jugando'||st==='nivel'||st==='mundo'))syncLevelTrack(false);
+});
 levelTrack.addEventListener('error',function(){trackFailed=true;trackReady=false;});
 levelTrack.addEventListener('timeupdate',function(){
-  if(trackReady&&trackStage>=0&&trackStage<6&&levelTrack.currentTime>=trackCuts[trackStage+1]-.08){
-    levelTrack.currentTime=trackCuts[trackStage];
+  if(!trackReady||trackStage<0||trackStage>5)return;
+  var end=trackCuts[trackStage+1],begin=trackCuts[trackStage];
+  if(end>begin&&levelTrack.currentTime>=end-.12){
+    try{levelTrack.currentTime=begin+.025;}catch(e){}
   }
 });
 function syncLevelTrack(force){
-  if(!trackReady||trackFailed||!mus||st!=='jugando')return;
+  if(!trackReady||trackFailed||!mus||menuOn||
+     !(st==='jugando'||st==='nivel'||st==='mundo'))return;
+  buildTrackCuts();
   var stage=Math.max(0,Math.min(5,li|0));
   var pitch=Math.max(.88,Math.min(1.20,.88+Math.max(0,wi)*.02));
   levelTrack.playbackRate=pitch;
   levelTrack.volume=Math.max(0,Math.min(1,vol*.55));
-  if(force||trackStage!==stage||levelTrack.paused){
+  if(force||trackStage!==stage){
     trackStage=stage;
-    levelTrack.currentTime=trackCuts[stage];
+    try{levelTrack.currentTime=trackCuts[stage]+.025;}catch(e){}
+  }
+  if(levelTrack.paused){
     var p=levelTrack.play();
     if(p&&p.catch)p.catch(function(){});
   }
@@ -202,25 +219,27 @@ function ps(i,t0,T,sd){var bar=Math.floor(i/16)%4,s=i%16,r=T.root+(T.boss?[0,0,-
   if(T.dr){if(s%8===0||(T.boss&&s%8===6))mn(150,t0,.12,'sine',.3,45);if(s%8===4)mdr(t0,.1,.16);if(s%4===2)mdr(t0,.03,.05);}}
 function sched(){var a=AC;if(!a||!mus||!MT||a.state!=='running')return;var sd=60/MT.bpm/4;if(mNext<a.currentTime)mNext=a.currentTime+.05;
   while(mNext<a.currentTime+.16){ps(mStep,mNext,MT,sd);mNext+=sd;mStep++;}}
-function stopSynthMusic(){if(mTimer){clearInterval(mTimer);mTimer=null;}}
+function stopSynthMusic(){
+  if(mTimer){clearInterval(mTimer);mTimer=null;}
+}
 function musicStart(){
-  if(!mus)return;
-  ac();
-  if(trackReady&&!trackFailed&&st==='jugando'){syncLevelTrack(true);stopSynthMusic();return;}
-  if(!mTimer&&AC){mNext=AC.currentTime+.05;mTimer=setInterval(sched,25);}
-  if(!trackFailed){var p=levelTrack.play();if(p&&p.catch)p.catch(function(){});}
+  stopSynthMusic();
+  if(!mus||menuOn||trackFailed)return;
+  if(trackReady&&(st==='jugando'||st==='nivel'||st==='mundo'||st==='inicio'||st==='fin')){
+    if(st==='jugando'||st==='nivel'||st==='mundo')syncLevelTrack(false);
+    else{
+      levelTrack.volume=Math.max(0,Math.min(1,vol*.55));
+      var p=levelTrack.play();if(p&&p.catch)p.catch(function(){});
+    }
+  }
 }
 function musicTheme(){
-  if(!mus){levelTrack.pause();stopSynthMusic();return;}
-  if(st==='jugando'&&trackReady&&!trackFailed){
-    stopSynthMusic();
-    syncLevelTrack(false);
+  stopSynthMusic();
+  if(!mus||menuOn||!(st==='jugando'||st==='nivel'||st==='mundo')){
+    if(!levelTrack.paused)levelTrack.pause();
     return;
   }
-  levelTrack.pause();
-  var n=(st==='inicio'||st==='cine'||(st==='fin'&&!win))?'title':(ens.some(function(e){return e.big;})?'b':'w')+wi;
-  if(n!==mTheme){mTheme=n;MT=themeOf(n);mStep=0;if(AC)mNext=Math.max(mNext,AC.currentTime+.05);}
-  if(!mTimer&&AC){mNext=AC.currentTime+.05;mTimer=setInterval(sched,25);}
+  syncLevelTrack(false);
 }
 function lblMus(){document.getElementById('m-mus').textContent='M\\u00fasica: '+(mus?'S\\u00ed':'No');}
 function musToggle(){
@@ -405,7 +424,7 @@ function start(cont,w0){
   else{wi=w0||0;li=0;vidas=3;tot=0;nx=0;pts=0;nextLife=300;save=null;sv();}
   startBest=best;win=false;sx=W/2;ens=[];pu=[];coinFly=[];mis=[];tm.sh=tm.mu=tm.ra=tm.mi=0;miCd=0;spT=8;st='mundo';msgT=2.4;if(!storySeen){storySeen=true;try{localStorage.setItem('galaga-story','1');}catch(e){}sv();st='cine';cineK=1;cineT=0;}}
 function terminar(w){win=w;st='fin';save=null;finT=4;sv();if(w)SFX.win();else SFX.over();}
-function act(){if(menuOn)return;musicStart();if(st==='cine'){skipCine();return;}if(st==='inicio'||st==='fin')start(true);else if(st==='pausa')st='jugando';}
+function act(){if(menuOn)return;if(st==='cine'){skipCine();return;}if(st==='inicio'||st==='fin'){start(true);musicStart();}else if(st==='pausa'){st='jugando';musicStart();}else musicStart();}
 function pausa(){if(menuOn)menuClose();else menuOpen();}
 function boom(x,y,c,n){for(var i=0;i<(n||14);i++){var a=R(0,6.28),v=R(40,160);
   parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:R(.3,.7),c:c});}}
@@ -436,8 +455,8 @@ function lblSnd(){bSnd.textContent='Efectos: '+(snd?'Sí':'No');}
 function inGame(){return st==='jugando'||st==='pausa'||st==='nivel'||st==='mundo';}
 function showView(v){['home','worlds','shop','pause'].forEach(function(k){document.getElementById('v-'+k).style.display=k===v?'flex':'none';});}
 function refreshHome(){document.getElementById('home-info').textContent='Monedas: '+profile.coins+' • Balas '+profile.bullets+'/6 • Tótems '+profile.totemLevel+'/3';}
-function menuOpen(){if(menuOn)return;menuOn=true;if(st==='jugando'||st==='nivel'||st==='mundo'){prevSt=st;st='pausa';showView('pause');}else{prevSt=null;showView('home');}lblSnd();lblMus();lblCtl();vEl.value=Math.round(vol*100);refreshHome();mEl.classList.add('on');}
-function menuClose(skip){menuOn=false;mEl.classList.remove('on');if(!skip&&prevSt&&st==='pausa')st=prevSt;prevSt=null;}
+function menuOpen(){if(menuOn)return;menuOn=true;if(st==='jugando'||st==='nivel'||st==='mundo'){prevSt=st;st='pausa';showView('pause');}else{prevSt=null;showView('home');}levelTrack.pause();stopSynthMusic();lblSnd();lblMus();lblCtl();vEl.value=Math.round(vol*100);refreshHome();mEl.classList.add('on');}
+function menuClose(skip){menuOn=false;mEl.classList.remove('on');if(!skip&&prevSt&&st==='pausa')st=prevSt;prevSt=null;if(st==='jugando'||st==='nivel'||st==='mundo')musicStart();}
 function buildWorlds(target){var dest=document.getElementById(target||'worlds');dest.innerHTML='';for(var i=0;i<=Math.min(maxW+1,60);i++)(function(i){var b=document.createElement('button');b.textContent=(i+1)+'. '+wname(i);b.disabled=i>maxW;b.addEventListener('click',function(){if(i>maxW)return;menuClose(true);save=null;start(false,i);});dest.appendChild(b);})(i);}
 function shopRender(){var box=document.getElementById('shop-items');box.innerHTML='';document.getElementById('shop-coins').textContent='Monedas: '+profile.coins;
  function item(title,desc,cost,owned,selected,min,max,onBuy,onSelect){var d=document.createElement('div');d.className='shop-row';var h=document.createElement('strong');h.textContent=title;d.appendChild(h);var p=document.createElement('div');p.textContent=desc;d.appendChild(p);

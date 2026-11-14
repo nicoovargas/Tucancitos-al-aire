@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="game-version" content="1.0.6">
+<meta name="game-version" content="1.0.7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -158,7 +158,7 @@ function tapTxt(){return ctl==='touch'?'la pantalla':'Disparar';}
 function lblCtl(){document.getElementById('m-ctl').textContent='Controles: '+(ctl==='touch'?'T\u00e1ctil':'Botones');}
 function setCtl(v){ctl=v;try{localStorage.setItem('galaga-ctl',v==='btn'?'btn':'touch');}catch(e){}try{document.body.classList.toggle('touch',ctl==='touch');}catch(e){}lblCtl();}
 var mG=null,mus=true,mTimer=null,mNext=0,mStep=0,mTheme='',MT=null,NB=null;
-var levelTrack=new Audio('assets/Level%2520Clear.mp3'),trackReady=false,trackFailed=false,trackStage=-1;
+var levelTrack=new Audio('assets/Level%2520Clear.mp3'),trackReady=false,trackFailed=false,trackStage=-1,trackFadeTimer=null,trackFading=false;
 var trackCuts=[0,0,0,0,0,0,0];
 levelTrack.preload='auto';levelTrack.loop=false;levelTrack.volume=vol*.55;
 try{levelTrack.preservesPitch=false;levelTrack.webkitPreservesPitch=false;}catch(e){}
@@ -183,9 +183,23 @@ levelTrack.addEventListener('timeupdate',function(){
     try{levelTrack.currentTime=begin+.025;}catch(e){}
   }
 });
+function fadeOutLevelTrack(){
+  if(trackFadeTimer){clearInterval(trackFadeTimer);trackFadeTimer=null;}
+  if(levelTrack.paused){trackFading=false;return;}
+  trackFading=true;
+  var base=Math.max(0,Math.min(1,vol*.55)),started=Date.now(),duration=420;
+  trackFadeTimer=setInterval(function(){
+    var progress=Math.min(1,(Date.now()-started)/duration);
+    levelTrack.volume=base*(1-progress);
+    if(progress>=1){
+      clearInterval(trackFadeTimer);trackFadeTimer=null;
+      levelTrack.pause();levelTrack.volume=base;trackStage=-1;trackFading=false;
+    }
+  },20);
+}
 function syncLevelTrack(force){
-  if(!trackReady||trackFailed||!mus||menuOn||
-     !(st==='jugando'||st==='nivel'||st==='mundo'))return;
+  if(!trackReady||trackFailed||!mus||menuOn||trackFading||
+     !(st==='jugando'||st==='mundo'))return;
   buildTrackCuts();
   var stage=Math.max(0,Math.min(5,li|0));
   var pitch=Math.max(.88,Math.min(1.20,.88+Math.max(0,wi)*.02));
@@ -235,7 +249,8 @@ function musicStart(){
 }
 function musicTheme(){
   stopSynthMusic();
-  if(!mus||menuOn||!(st==='jugando'||st==='nivel'||st==='mundo')){
+  if(st==='nivel'){if(!trackFading&&!levelTrack.paused)levelTrack.pause();return;}
+  if(!mus||menuOn||!(st==='jugando'||st==='mundo')){
     if(!levelTrack.paused)levelTrack.pause();
     return;
   }
@@ -600,7 +615,7 @@ function update(dt){shk=Math.max(0,shk-dt);boil(dt);musicTheme();if(mG)mG.gain.v
       }
     }
   }
-  if(ens.length===0){if(wi>=9&&!extraWaveDone){extraWaveDone=true;var wn=Math.min(5+Math.floor((wi-9)/2),9);for(var wi2=0;wi2<wn;wi2++){var we={x:R(30,W-30),y:R(105,235),vx:(Math.random()<.5?-1:1)*Math.min(65+wi*5,210),vy:Math.min(38+wi*3,135),hp:bhp(),ph:R(0,6)};we.v=pickV();we.tf=Math.random()<.18;we.hp=bhp()+(we.tf?Math.max(1,Math.round(bhp()*.35)):0)+(we.v===2?Math.round(bhp()*.6):0);ens.push(we);}tip='¡OLEADA EXTRA!';tipT=2.2;SFX.boss();}else{gain((L()+1)*30);st='nivel';msgT=3.5;lz=[];dec=[];SFX.level();var reward=Math.round((16+wi*4+(li===5?24:0))*(li===5?3.5:1)),coinCount=Math.min(10,Math.max(6,Math.ceil(reward/5))),coinBase=Math.floor(reward/coinCount),coinExtra=reward%coinCount;coinFly=[];for(var ri=0;ri<coinCount;ri++){coinFly.push({x:W/2+(ri-(coinCount-1)/2)*13,y:H/2-10+Math.abs(ri-(coinCount-1)/2)*3,v:coinBase+(ri<coinExtra?1:0),delay:ri*.12,age:0,phase:ri*1.7});}msgT=4.6;}}
+  if(ens.length===0){if(wi>=9&&!extraWaveDone){extraWaveDone=true;var wn=Math.min(5+Math.floor((wi-9)/2),9);for(var wi2=0;wi2<wn;wi2++){var we={x:R(30,W-30),y:R(105,235),vx:(Math.random()<.5?-1:1)*Math.min(65+wi*5,210),vy:Math.min(38+wi*3,135),hp:bhp(),ph:R(0,6)};we.v=pickV();we.tf=Math.random()<.18;we.hp=bhp()+(we.tf?Math.max(1,Math.round(bhp()*.35)):0)+(we.v===2?Math.round(bhp()*.6):0);ens.push(we);}tip='¡OLEADA EXTRA!';tipT=2.2;SFX.boss();}else{gain((L()+1)*30);st='nivel';fadeOutLevelTrack();msgT=3.5;lz=[];dec=[];SFX.level();var reward=Math.round((16+wi*4+(li===5?24:0))*(li===5?3.5:1)),coinCount=Math.min(10,Math.max(6,Math.ceil(reward/5))),coinBase=Math.floor(reward/coinCount),coinExtra=reward%coinCount;coinFly=[];for(var ri=0;ri<coinCount;ri++){coinFly.push({x:W/2+(ri-(coinCount-1)/2)*13,y:H/2-10+Math.abs(ri-(coinCount-1)/2)*3,v:coinBase+(ri<coinExtra?1:0),delay:ri*.12,age:0,phase:ri*1.7});}msgT=4.6;}}
 }
 
 function birdVec(e,P){

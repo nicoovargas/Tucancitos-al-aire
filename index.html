@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="game-version" content="1.0.8">
+<meta name="game-version" content="1.0.9">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tucansitos al aire</title>
 <style>
@@ -163,13 +163,19 @@ levelTrack.preload='auto';levelTrack.loop=true;levelTrack.volume=vol*.55;
 try{levelTrack.preservesPitch=false;levelTrack.webkitPreservesPitch=false;}catch(e){}
 levelTrack.addEventListener('loadedmetadata',function(){
   trackReady=true;
-  if(mus&&(st==='jugando'||st==='nivel'||st==='mundo'||st==='pausa'))syncLevelTrack(false);
+  if(mus&&(st==='jugando'||st==='nivel'||st==='mundo'))syncLevelTrack(false);
 });
 levelTrack.addEventListener('canplay',function(){
   trackReady=true;
   if(mus&&(st==='jugando'||st==='nivel'||st==='mundo'||st==='pausa'))syncLevelTrack(false);
 });
 levelTrack.addEventListener('error',function(){trackFailed=true;trackReady=false;});
+levelTrack.addEventListener('ended',function(){
+  if(mus&&!trackFailed&&levelTrack.loop===false&&(st==='jugando'||st==='nivel'||st==='mundo')){
+    levelTrack.currentTime=0;
+    var p=levelTrack.play();if(p&&p.catch)p.catch(function(){});
+  }
+});
 function syncLevelTrack(){
   if(!trackReady||trackFailed||!mus)return;
   var pitch=Math.max(.88,Math.min(1.20,.88+Math.max(0,wi)*.02));
@@ -204,18 +210,18 @@ function stopSynthMusic(){
 }
 function musicStart(){
   stopSynthMusic();
-  if(!mus||trackFailed)return;
-  if(trackReady&&(st==='jugando'||st==='nivel'||st==='mundo'||st==='pausa')){
+  if(!mus||trackFailed||st==='pausa')return;
+  if(trackReady&&(st==='jugando'||st==='nivel'||st==='mundo')){
     syncLevelTrack();
   }
 }
 function musicTheme(){
   stopSynthMusic();
-  if(!mus){
+  if(!mus||st==='pausa'){
     if(!levelTrack.paused)levelTrack.pause();
     return;
   }
-  if(st==='jugando'||st==='nivel'||st==='mundo'||st==='pausa'){
+  if(st==='jugando'||st==='nivel'||st==='mundo'){
     syncLevelTrack();
   }
 }
@@ -433,7 +439,7 @@ function lblSnd(){bSnd.textContent='Efectos: '+(snd?'Sí':'No');}
 function inGame(){return st==='jugando'||st==='pausa'||st==='nivel'||st==='mundo';}
 function showView(v){['home','worlds','shop','pause'].forEach(function(k){document.getElementById('v-'+k).style.display=k===v?'flex':'none';});}
 function refreshHome(){document.getElementById('home-info').textContent='Monedas: '+profile.coins+' • Balas '+profile.bullets+'/6 • Tótems '+profile.totemLevel+'/3';}
-function menuOpen(){if(menuOn)return;menuOn=true;if(st==='jugando'||st==='nivel'||st==='mundo'){prevSt=st;st='pausa';showView('pause');}else{prevSt=null;showView('home');}stopSynthMusic();lblSnd();lblMus();lblCtl();vEl.value=Math.round(vol*100);refreshHome();mEl.classList.add('on');}
+function menuOpen(){if(menuOn)return;menuOn=true;if(st==='jugando'||st==='nivel'||st==='mundo'){prevSt=st;st='pausa';levelTrack.pause();showView('pause');}else{prevSt=null;showView('home');}stopSynthMusic();lblSnd();lblMus();lblCtl();vEl.value=Math.round(vol*100);refreshHome();mEl.classList.add('on');}
 function menuClose(skip){menuOn=false;mEl.classList.remove('on');if(!skip&&prevSt&&st==='pausa')st=prevSt;prevSt=null;if(st==='jugando'||st==='nivel'||st==='mundo')musicStart();}
 function buildWorlds(target){var dest=document.getElementById(target||'worlds');dest.innerHTML='';for(var i=0;i<=Math.min(maxW+1,60);i++)(function(i){var b=document.createElement('button');b.textContent=(i+1)+'. '+wname(i);b.disabled=i>maxW;b.addEventListener('click',function(){if(i>maxW)return;menuClose(true);save=null;start(false,i);});dest.appendChild(b);})(i);}
 function shopRender(){var box=document.getElementById('shop-items');box.innerHTML='';document.getElementById('shop-coins').textContent='Monedas: '+profile.coins;
